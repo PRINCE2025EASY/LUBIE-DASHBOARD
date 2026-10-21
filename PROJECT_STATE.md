@@ -4,7 +4,7 @@ Last updated: 21/10/2026 (Africa/Accra)
 
 ## Current stage
 
-Stage 3, Build (Iteration 1): delivered, waiting at the gate for "proceed". Next: Stage 4 (Test).
+Stage 4, Test: delivered, waiting at the gate for "proceed". Next: Stage 5 (GitHub).
 
 ## Decisions recorded
 
@@ -18,6 +18,7 @@ Stage 3, Build (Iteration 1): delivered, waiting at the gate for "proceed". Next
 | 21/10/2026 | Repository stays public for now; owner will make it private later. Push still needs approval at Stage 5. |
 | 21/10/2026 | Project folder approved: C:\xampp\htdocs\lubie-dashboard. |
 | 21/10/2026 | Administrator sees the audit trail; Director does not. |
+| 21/10/2026 | XAMPP confirmed from its readme: Apache 2.4.58, MariaDB 10.4.32, PHP 8.2.12. php.ini change not yet approved. |
 
 ## Work completed
 
@@ -69,6 +70,13 @@ Stage 2:
 | Least-privilege app account: all write paths, backup download | Pass |
 | migrate on empty DB, upgrade 0.2.0 to 0.3.0, setup:first-admin refuses a second admin, seed:demo refused in production | Pass |
 
+## Stage 4 (Test) delivered
+
+- `docs/TEST_REPORT.md`: environments, results, suites, requirement coverage, OWASP mapping, accessibility, performance, compatibility, usability protocol T1 to T5, defect log D-01 to D-15, open items O-1 to O-6.
+- New tests: SecurityProbeTest (9), ProjectScheduleTest (5). Total 102 tests, 921 assertions, line coverage 82.3 %.
+- `php bin/console.php doctor`: read-only set-up check for XAMPP.
+- Fixes: contrast, keyboard-scrollable tables, input names, Chart.js loaded on demand (dashboard 3.2 s to 2.1 s on throttled mobile), clear message for wrong DB credentials, completed projects closed to new activities (already enforced; now tested).
+
 ## Not run yet
 
 - On your XAMPP: PHP 8.2.12 and MariaDB (10.4 expected, not confirmed). The app was not run on your computer yet.
@@ -79,7 +87,7 @@ Stage 2:
 
 ## Open defects
 
-None known. Stage 4 will run the full test plan.
+None open. Open environment items O-1 to O-6 in docs/TEST_REPORT.md.
 
 ## Decisions awaiting approval
 
@@ -87,6 +95,6 @@ None known. Stage 4 will run the full test plan.
 2. Assumptions marked "Yes" in `docs/stage1/03_Assumptions_Register.md`.
 3. Stage 5: push branch iteration-1 to PRINCE2025EASY/LUBIE-DASHBOARD (public).
 
-## Next steps (Stage 4, Test)
+## Next steps (Stage 5, GitHub)
 
-Full functional and security test plan with evidence, usability tasks (T1 to T5), accessibility check, performance timing, MariaDB 10.4 check on your XAMPP, defect log.
+With your approval: push branch iteration-1 (and main) to PRINCE2025EASY/LUBIE-DASHBOARD, add a GitHub Actions workflow (PHP 8.2, MariaDB 10.4 service, lint, PHPUnit, composer audit), branch protection advice, release tag v0.4.0.

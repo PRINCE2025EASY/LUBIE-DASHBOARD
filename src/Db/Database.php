@@ -61,6 +61,10 @@ final class Database
                 $this->pdo->exec("SET time_zone = '+00:00'");
                 return $this->pdo;
             } catch (PDOException $e) {
+                // Wrong user, password or database name: retrying will not help.
+                if (in_array((int) ($e->errorInfo[1] ?? 0), [1044, 1045, 1049], true) || preg_match('/\[(1044|1045|1049)\]/', $e->getMessage())) {
+                    throw new DatabaseUnavailable('The database refused the connection settings. Check DB_NAME, DB_USER and DB_PASSWORD in .env.', 0, $e);
+                }
                 if ($i >= $attempts) {
                     throw new DatabaseUnavailable('The database is not responding. Please try again in a minute.', 0, $e);
                 }

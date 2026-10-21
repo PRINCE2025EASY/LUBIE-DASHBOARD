@@ -4,8 +4,8 @@ This guide runs the dashboard at http://localhost/lubie-dashboard on your own co
 You type every password yourself. Never paste a password or key into chat or email.
 
 Tested in the cloud workspace on PHP 8.3 with Apache 2.4 and MariaDB 10.11, with the same
-.htaccess files and the /lubie-dashboard base path. Your XAMPP has PHP 8.2.12. Your MariaDB
-version is not yet confirmed (10.4 expected); step 2 checks it.
+.htaccess files and the /lubie-dashboard base path. Your XAMPP has PHP 8.2.12. Your
+XAMPP readme lists MariaDB 10.4.32; step 2 confirms it.
 
 ## 1. Files
 
@@ -81,11 +81,19 @@ each user to their own dashboard.
 
 Check Administrator > Summary > Set-up checks. Any "Action needed" row tells you what is missing.
 
+You can also run a read-only check in the XAMPP Shell. It never shows passwords or keys:
+
+    php bin/console.php doctor
+
+If it says the database refused the connection settings, check DB_NAME, DB_USER and DB_PASSWORD
+in .env. If the password is right, try `DB_HOST=localhost` instead of `127.0.0.1`.
+
 ## 8. Useful commands
 
     php bin/console.php migrate              apply new database migrations (run with an owner account)
     php bin/console.php alerts:run           evaluate alerts for all active projects
     php bin/console.php backup:create --out=D:\Backups\lubie.sql.gz.enc
+    php bin/console.php doctor               read-only set-up check
     php bin/lint.php                         syntax check of all PHP files
 
 `migrate` needs a database account that can create tables. The app account cannot, by design.

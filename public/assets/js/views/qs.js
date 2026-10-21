@@ -78,16 +78,16 @@ async function certificates(app, id) {
     const actions = h('div', { class: 'd-flex flex-wrap gap-2 mt-2' });
     if (c.status === 'submitted') {
       const f = h('form', { class: 'd-flex flex-wrap gap-2 align-items-end', novalidate: true },
-        h('div', {}, h('label', { class: 'form-label small' }, 'Amount certified'), h('input', { class: 'form-control form-control-sm', name: 'amount_certified', inputmode: 'decimal' }), h('div', { class: 'invalid-feedback', 'data-for': 'amount_certified' })),
-        h('div', {}, h('label', { class: 'form-label small' }, 'Date certified'), h('input', { class: 'form-control form-control-sm', name: 'certified_date', type: 'date', value: todayIso() }), h('div', { class: 'invalid-feedback', 'data-for': 'certified_date' })),
+        h('div', {}, h('label', { class: 'form-label small' }, 'Amount certified'), h('input', { class: 'form-control form-control-sm', name: 'amount_certified', 'aria-label': 'Amount certified', inputmode: 'decimal' }), h('div', { class: 'invalid-feedback', 'data-for': 'amount_certified' })),
+        h('div', {}, h('label', { class: 'form-label small' }, 'Date certified'), h('input', { class: 'form-control form-control-sm', name: 'certified_date', 'aria-label': 'Date certified', type: 'date', value: todayIso() }), h('div', { class: 'invalid-feedback', 'data-for': 'certified_date' })),
         h('button', { class: 'btn btn-sm btn-primary', type: 'submit' }, 'Certify'), h('div', { class: 'form-msg w-100' }));
       f.addEventListener('submit', async e => { e.preventDefault(); try { await post(`/certificates/${c.id}/certify`, formData(f)); toast('Certified.'); certificates(app, id); } catch (err) { showErrors(f, err); } });
       actions.append(f);
     } else if (c.status !== 'paid') {
       const f = h('form', { class: 'd-flex flex-wrap gap-2 align-items-end', novalidate: true },
-        h('div', {}, h('label', { class: 'form-label small' }, 'Payment received'), h('input', { class: 'form-control form-control-sm', name: 'amount', inputmode: 'decimal', placeholder: c.outstanding }), h('div', { class: 'invalid-feedback', 'data-for': 'amount' })),
-        h('div', {}, h('label', { class: 'form-label small' }, 'Date paid'), h('input', { class: 'form-control form-control-sm', name: 'paid_date', type: 'date', value: todayIso() }), h('div', { class: 'invalid-feedback', 'data-for': 'paid_date' })),
-        h('div', {}, h('label', { class: 'form-label small' }, 'Bank / receipt ref'), h('input', { class: 'form-control form-control-sm', name: 'reference_no', maxlength: 50 }), h('div', { class: 'invalid-feedback', 'data-for': 'reference_no' })),
+        h('div', {}, h('label', { class: 'form-label small' }, 'Payment received'), h('input', { class: 'form-control form-control-sm', name: 'amount', 'aria-label': 'Payment received', inputmode: 'decimal', placeholder: c.outstanding }), h('div', { class: 'invalid-feedback', 'data-for': 'amount' })),
+        h('div', {}, h('label', { class: 'form-label small' }, 'Date paid'), h('input', { class: 'form-control form-control-sm', name: 'paid_date', type: 'date', value: todayIso(), 'aria-label': 'Date paid' }), h('div', { class: 'invalid-feedback', 'data-for': 'paid_date' })),
+        h('div', {}, h('label', { class: 'form-label small' }, 'Bank / receipt ref'), h('input', { class: 'form-control form-control-sm', name: 'reference_no', maxlength: 50, 'aria-label': 'Bank or receipt reference' }), h('div', { class: 'invalid-feedback', 'data-for': 'reference_no' })),
         h('button', { class: 'btn btn-sm btn-success', type: 'submit' }, 'Record payment'), h('div', { class: 'form-msg w-100' }));
       f.addEventListener('submit', async e => { e.preventDefault(); try { await post(`/certificates/${c.id}/payments`, formData(f)); toast('Payment recorded.'); certificates(app, id); } catch (err) { showErrors(f, err); } });
       actions.append(f);

@@ -3,7 +3,20 @@
 const charts = new WeakMap();
 const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 
-function draw(canvas, config) {
+// Chart.js (about 200 KB) loads only when a chart is first drawn, not on every page.
+let loading = null;
+function loadChart() {
+  if (window.Chart) return Promise.resolve();
+  loading ??= new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = document.querySelector('meta[name="chart-src"]').content;
+    s.onload = resolve; s.onerror = () => { loading = null; reject(new Error('Chart library not available offline yet.')); };
+    document.head.append(s);
+  });
+  return loading;
+}
+async function draw(canvas, config) {
+  await loadChart();
   charts.get(canvas)?.destroy();
   const c = new window.Chart(canvas, config);
   charts.set(canvas, c);

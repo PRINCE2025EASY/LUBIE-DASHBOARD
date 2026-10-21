@@ -53,7 +53,8 @@ export function kpiCard(label, value, formula, tone) {
 }
 export function table(headers, rows, empty = 'Nothing to show yet.') {
   if (!rows.length) return h('p', { class: 'text-body-secondary mb-0' }, empty);
-  return h('div', { class: 'table-responsive' }, h('table', { class: 'table table-sm align-middle mb-0' },
+  // Focusable scroll region so keyboard users can scroll wide tables on phones (WCAG 2.1.1).
+  return h('div', { class: 'table-responsive', tabindex: '0', role: 'region', 'aria-label': 'Table, scroll sideways for more columns' }, h('table', { class: 'table table-sm align-middle mb-0' },
     h('thead', {}, h('tr', {}, headers.map(x => h('th', { scope: 'col' }, x)))),
     h('tbody', {}, rows.map(r => h('tr', {}, r.map(c => h('td', {}, c)))))));
 }

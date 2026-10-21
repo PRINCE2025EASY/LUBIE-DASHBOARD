@@ -25,6 +25,14 @@ body { min-height: 100vh; background: var(--bs-body-bg); }
   .btn-sm { min-height: 40px; }
 }
 
+/* Contrast fixes found by the axe scan (WCAG 1.4.3, 4.5:1). */
+.btn-outline-warning { --bs-btn-color: #7a5c00; --bs-btn-border-color: #b38600; --bs-btn-hover-color: #000; }
+[data-bs-theme="dark"] .btn-outline-primary { --bs-btn-color: #6ea8fe; --bs-btn-border-color: #6ea8fe; --bs-btn-hover-bg: #6ea8fe; --bs-btn-hover-color: #000; }
+[data-bs-theme="dark"] .btn-outline-danger { --bs-btn-color: #ea868f; --bs-btn-border-color: #ea868f; --bs-btn-hover-bg: #ea868f; --bs-btn-hover-color: #000; }
+[data-bs-theme="dark"] .btn-outline-warning { --bs-btn-color: #ffda6a; --bs-btn-border-color: #ffda6a; }
+[data-bs-theme="dark"] .btn-outline-secondary { --bs-btn-color: #c4c8cb; --bs-btn-border-color: #8a9096; }
+.table-responsive:focus-visible { outline: 2px solid var(--lubie-brand); outline-offset: 2px; }
+
 /* KPI cards */
 .kpi-card .kpi-value { line-height: 1.2; word-break: break-word; }
 .kpi-card .kpi-info { line-height: 1; text-decoration: none; }

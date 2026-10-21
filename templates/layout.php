@@ -10,6 +10,7 @@ $theme = $user?->theme ?? 'system';
 <meta name="csrf-token" content="<?= $e($csrf) ?>">
 <meta name="base-path" content="<?= $e($basePath) ?>">
 <meta name="role" content="<?= $e($user?->role ?? '') ?>">
+<meta name="chart-src" content="<?= $e($asset('vendor/chartjs/chart.umd.min.js')) ?>">
 <title><?= $e($title ?? 'Dashboard') ?> · Lubie Project Monitoring</title>
 <link rel="manifest" href="<?= $e($url('/manifest.webmanifest')) ?>">
 <link rel="icon" href="<?= $e($url('/assets/icon.svg')) ?>" type="image/svg+xml">
@@ -17,6 +18,9 @@ $theme = $user?->theme ?? 'system';
 <link rel="stylesheet" href="<?= $e($asset('vendor/bootstrap-icons/bootstrap-icons.min.css')) ?>">
 <link rel="stylesheet" href="<?= $e($asset('css/app.css')) ?>">
 <script src="<?= $e($asset('js/theme-init.js')) ?>"></script>
+<?php foreach (['lib/api.js', 'lib/dom.js', 'lib/outbox.js', 'lib/drafts.js', 'lib/poll.js', 'views/common.js'] as $m): ?>
+<link rel="modulepreload" href="<?= $e($url('/assets/js/' . $m)) ?>">
+<?php endforeach; ?>
 </head>
 <body>
 <a class="visually-hidden-focusable" href="#main">Skip to content</a>
@@ -50,8 +54,7 @@ $theme = $user?->theme ?? 'system';
   <div class="offcanvas-body" id="alerts-body"></div>
 </div>
 <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toasts" aria-live="polite"></div>
-<script src="<?= $e($asset('vendor/bootstrap/bootstrap.bundle.min.js')) ?>"></script>
-<script src="<?= $e($asset('vendor/chartjs/chart.umd.min.js')) ?>"></script>
+<script defer src="<?= $e($asset('vendor/bootstrap/bootstrap.bundle.min.js')) ?>"></script>
 <script type="module" src="<?= $e($asset('js/app.js')) ?>"></script>
 </body>
 </html>

@@ -15,6 +15,7 @@ declare(strict_types=1);
  *   restore:verify --file=F --target=DB   Import F into the EMPTY database DB and compare counts and KPIs.
  *   alerts:run              Evaluate alert rules for every active project (for a daily scheduled task).
  *   sms:retry               Retry SMS messages that are due for another attempt.
+ *   doctor                  Read-only check of PHP, extensions, .env, database and schema. Shows no secrets.
  *
  * Secrets are never passed on the command line; they come from .env or the host settings.
  */
@@ -192,8 +193,50 @@ try {
             $say('SMS retry pass finished.');
             break;
 
+        case 'doctor':
+            $ok = static fn (bool $b) => $b ? 'OK  ' : 'FIX ';
+            $say('Lubie dashboard check (read-only; no secret values shown)');
+            $say($ok(PHP_VERSION_ID >= 80200) . 'PHP ' . PHP_VERSION . ' (' . PHP_OS_FAMILY . ', ' . (PHP_INT_SIZE * 8) . '-bit)');
+            foreach (['pdo_mysql' => true, 'mbstring' => true, 'json' => true, 'dom' => true, 'zlib' => true, 'openssl' => false, 'curl' => false, 'fileinfo' => false] as $ext => $required) {
+                $say((extension_loaded($ext) ? 'OK  ' : ($required ? 'FIX ' : 'WARN')) . "extension {$ext}" . (extension_loaded($ext) ? '' : ($required ? ' (required)' : ' (needed for ' . ['openssl' => 'backups', 'curl' => 'real SMS', 'fileinfo' => 'photo uploads later'][$ext] . ')')));
+            }
+            $say($ok(class_exists(\Dompdf\Dompdf::class)) . 'Dompdf (PDF export)' . (class_exists(\Dompdf\Dompdf::class) ? '' : ': vendor folder missing, print view used'));
+            $say($ok(is_file($root . '/.env')) . '.env file ' . (is_file($root . '/.env') ? 'found' : 'missing: copy .env.example to .env'));
+            foreach (['APP_KEY' => 32, 'BACKUP_ENCRYPTION_KEY' => 32, 'DB_PASSWORD' => 1] as $k => $min) {
+                $set = strlen((string) Env::get($k, '')) >= $min;
+                $say(($set ? 'OK  ' : 'WARN') . "{$k} " . ($set ? 'is set' : ($min > 1 ? "is missing or shorter than {$min} characters" : 'is empty')));
+            }
+            $say('INFO APP_BASE_PATH=' . (Env::get('APP_BASE_PATH', '') ?: '(root)') . '  APP_ENV=' . Env::get('APP_ENV', 'local') . '  DB_USER=' . Env::get('DB_USER', '') . '  DB_NAME=' . Env::get('DB_NAME', ''));
+            if (Env::get('DB_USER') === 'root') {
+                $say('WARN the app connects as root. Use the least-privilege lubie_app account (INSTALL_XAMPP.md step 4).');
+            }
+            $db = Database::fromEnv();
+            $ver = (string) $db->value('SELECT VERSION()');
+            $isMaria = stripos($ver, 'mariadb') !== false;
+            $num = (string) preg_replace('/^(\d+\.\d+\.\d+).*/', '$1', $ver);
+            $say($ok($isMaria ? version_compare($num, '10.4.0', '>=') : version_compare($num, '8.0.16', '>=')) . "Database server {$ver}");
+            $say('INFO sql_mode=' . $db->value('SELECT @@SESSION.sql_mode'));
+            $tables = (int) $db->value('SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE()');
+            $say($ok($tables >= 31) . "Tables in " . $db->value('SELECT DATABASE()') . ": {$tables} (31 expected)");
+            if ($tables > 0) {
+                $versions = array_column($db->all('SELECT version FROM schema_migrations ORDER BY version'), 'version');
+                $say($ok(in_array('0.3.0', $versions, true)) . 'Schema versions: ' . implode(', ', $versions) . (in_array('0.3.0', $versions, true) ? '' : ' (run migrate with an owner account)'));
+                $gen = (int) $db->value("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE() AND extra LIKE '%GENERATED%'");
+                $say($ok($gen >= 2) . "Generated columns: {$gen} (2 expected)");
+                $checks = (int) $db->value("SELECT COUNT(*) FROM information_schema.table_constraints WHERE constraint_schema = DATABASE() AND constraint_type = 'CHECK'");
+                $say($ok($checks >= 27) . "CHECK constraints: {$checks} (27 expected)");
+                $say('INFO users: ' . $db->value('SELECT COUNT(*) FROM users') . ', projects: ' . $db->value('SELECT COUNT(*) FROM projects') . ', administrators: ' . $db->value("SELECT COUNT(*) FROM users u JOIN roles r ON r.id = u.role_id WHERE r.code = 'admin' AND u.status = 'active'"));
+                try {
+                    $db->pdo()->exec('UPDATE audit_logs SET action = action WHERE 1 = 0');
+                    $say('WARN app account can UPDATE audit_logs (fine for root, not for lubie_app)');
+                } catch (\PDOException) {
+                    $say('OK  audit_logs is append-only for this account');
+                }
+            }
+            break;
+
         default:
-            $say("Commands: migrate, setup:first-admin, seed:demo --yes, test-db:reset --yes, backup:create --out=F,\n"
+            $say("Commands: doctor, migrate, setup:first-admin, seed:demo --yes, test-db:reset --yes, backup:create --out=F,\n"
                 . '          restore:verify --file=F --target=DB, alerts:run, sms:retry');
     }
 } catch (\Lubie\Http\HttpException $e) {
