@@ -215,6 +215,10 @@ try {
                 $ver = (string) $db->value('SELECT VERSION()');
             } catch (\Throwable $e) {
                 $say('FIX database: ' . $e->getMessage());
+                if ($e->getPrevious() !== null) {
+                    // Server's own reason, e.g. "Access denied for user 'x'@'localhost' (using password: YES)". Never contains the password.
+                    $say('     Server said: ' . preg_replace('/^SQLSTATE\[[^\]]+\]\s*\[\d+\]\s*/', '', $e->getPrevious()->getMessage()));
+                }
                 $say('     Check that MySQL is running in the XAMPP Control Panel, the database exists, and DB_* in .env match the account you created.');
                 exit(1);
             }
