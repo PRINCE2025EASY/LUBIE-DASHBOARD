@@ -4,7 +4,7 @@ Last updated: 21/10/2026 (Africa/Accra)
 
 ## Current stage
 
-Stage 5, GitHub: prepared. Push waits for the owner (the cloud workspace has no credential for the repository). Next: Stage 6 (Deploy).
+Stage 6, Deploy: prepared (Docker image, Render blueprint, Aiven guide). Waiting for the owner to create the two free accounts and enter the secrets. Next after that: live checks, then Stage 7 (Documentation).
 
 ## Decisions recorded
 
@@ -20,6 +20,8 @@ Stage 5, GitHub: prepared. Push waits for the owner (the cloud workspace has no 
 | 21/10/2026 | Administrator sees the audit trail; Director does not. |
 | 21/10/2026 | XAMPP confirmed from its readme: Apache 2.4.58, MariaDB 10.4.32, PHP 8.2.12. php.ini change approved and made (backup kept). |
 | 21/10/2026 | Push of main and iteration-1 to the public repository approved. Owner runs usability sessions T1 to T5. |
+| 21/10/2026 | Owner pushed main (0c2ae89) from C:\Users\anaay\LUBIE-DASHBOARD. First CI run failed on Dompdf advisories; fixed with 3.1.6. |
+| 21/10/2026 | Hosting: Render free web service (Docker, Frankfurt) + Aiven free MySQL recommended (docs/DEPLOYMENT_OPTIONS.md). |
 
 ## Work completed
 
@@ -85,6 +87,14 @@ Stage 2:
 - History scanned before push: no .env, keys, backups or dumps. The only fixed password is the documented demo password in `database/seed_demo.sql` (synthetic accounts only).
 - `C:\xampp\htdocs\lubie-dashboard` is now the git working copy (branches main and iteration-1, remote origin set). CI has not run yet: it starts on the first push.
 
+## Stage 6 (Deploy) prepared
+
+- `Dockerfile`, `docker/` (Apache site, production php.ini, entrypoint), `.dockerignore`, `render.yaml`.
+- `docs/DEPLOYMENT_OPTIONS.md` (comparison with sources) and `docs/DEPLOY.md` (owner steps).
+- New: `setup:app-account` console command, `DB_SSL_CA_PEM`, `TRUSTED_PROXY_HOPS`, CI container job, manual Backup workflow.
+- Verified on MySQL 8.0 over TLS (103 tests) and under the container's Apache layout. Docker image itself is built only in CI.
+- Local XAMPP: doctor showed every PHP check OK; the database refused `lubie_app` (account missing or password mismatch). `.env.example` had a password typed into it; restored to the blank template, nothing reached GitHub. php.ini line 942 reverted because openssl was already loaded at line 984.
+
 ## Not run yet
 
 - On your XAMPP: PHP 8.2.12 and MariaDB (10.4 expected, not confirmed). The app was not run on your computer yet.
@@ -105,4 +115,4 @@ None open. Open environment items O-1 to O-6 in docs/TEST_REPORT.md.
 
 ## Next steps
 
-1. Owner pushes main and iteration-1 (docs/GITHUB_PUSH.md). 2. Check the first CI run. 3. Tag v0.4.0. 4. Stage 6: choose a free host and an online MySQL, deploy with HTTPS.
+1. Owner runs `setup:app-account --owner=root` locally, then doctor. 2. Owner pushes from C:\xampp\htdocs\lubie-dashboard; CI must be green. 3. Owner follows docs/DEPLOY.md. 4. Live checks, tag v0.5.0, Stage 7.

@@ -105,4 +105,13 @@ final class SupportTest extends TestCase
         $this->assertSame('05/03/2026', Dates::uk('2026-03-05 10:00:00'));
         $this->assertSame('', Dates::uk(null));
     }
+
+    public function testClientIpBehindTrustedProxy(): void
+    {
+        $h = ['x-forwarded-for' => '1.1.1.1, 41.66.10.20, 10.0.0.5'];
+        $this->assertSame('172.16.0.9', \Lubie\Http\Request::clientIp($h, '172.16.0.9', 0), 'No trust: socket address');
+        $this->assertSame('10.0.0.5', \Lubie\Http\Request::clientIp($h, '172.16.0.9', 1));
+        $this->assertSame('41.66.10.20', \Lubie\Http\Request::clientIp($h, '172.16.0.9', 2), 'Faked left-most entry ignored');
+        $this->assertSame('172.16.0.9', \Lubie\Http\Request::clientIp(['x-forwarded-for' => 'junk'], '172.16.0.9', 1));
+    }
 }

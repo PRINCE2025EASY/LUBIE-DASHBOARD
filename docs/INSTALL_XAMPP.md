@@ -45,10 +45,14 @@ Africa/Accra itself. Restart Apache after any change. Record the change in
    `database/schema.sql`, then `database/seed_production.sql`.
 4. Demo only (synthetic data, never real company data): also import `database/seed_demo.sql`.
    The shared demo password is written in the comment at the top of that file.
-5. Application account (least privilege). In the SQL tab, run the contents of
-   `database/privileges_template.sql`, but first replace `<<SET_IN_ENV_NOT_HERE>>` in the
-   editor with a new strong password of your own. Do not save that edit to the file.
-6. Then run `database/privileges_generated.sql` in the same SQL tab.
+5. Application account (least privilege). In the XAMPP Shell:
+
+       cd C:\xampp\htdocs\lubie-dashboard
+       php bin/console.php setup:app-account --owner=root
+
+   It asks for the root password (XAMPP default: none, press Enter), then a new password of
+   12 or more characters for `lubie_app`. Put that same password after `DB_PASSWORD=` in `.env`.
+   (Manual alternative: `database/privileges_template.sql` then `privileges_generated.sql`.)
 
 The app account can read and write data but cannot change the schema or alter the audit trail.
 
@@ -57,7 +61,7 @@ The app account can read and write data but cannot change the schema or alter th
 1. Copy `.env.example` to `.env` in the project folder.
 2. Fill in, yourself:
    - `APP_KEY`: run `php -r "echo bin2hex(random_bytes(32)), PHP_EOL;"` and paste the result.
-   - `DB_PASSWORD`: the password you chose in step 4.5.
+   - `DB_PASSWORD`: the password you chose in step 4.5. Only in `.env`, never in `.env.example`.
    - `BACKUP_ENCRYPTION_KEY`: a second random value made the same way. Keep a copy offline.
      Without it, backups cannot be opened.
    - Leave `SMS_PROVIDER=sandbox`. Nothing is sent to phones in sandbox mode.

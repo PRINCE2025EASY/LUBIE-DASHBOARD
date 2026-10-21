@@ -95,7 +95,7 @@ final class BackupService
                 continue; // structure only: session contents are never backed up
             }
             $cols = array_column($this->db->all("SELECT column_name AS c FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = ?
-                                                AND extra NOT LIKE '%GENERATED%' ORDER BY ordinal_position", [$t]), 'c');
+                                                AND extra NOT IN ('STORED GENERATED', 'VIRTUAL GENERATED', 'PERSISTENT GENERATED') ORDER BY ordinal_position", [$t]), 'c');
             $colList = '`' . implode('`,`', $cols) . '`';
             $n = 0;
             $batch = [];

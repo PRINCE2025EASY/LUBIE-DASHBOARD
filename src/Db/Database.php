@@ -23,6 +23,15 @@ final class Database
     {
     }
 
+    /** Same settings as fromEnv() but another account (owner tasks in bin/console.php). */
+    public static function fromEnvAs(string $user, string $password): self
+    {
+        $cfg = self::fromEnv()->cfg;
+        $cfg['user'] = $user;
+        $cfg['pass'] = $password;
+        return new self($cfg);
+    }
+
     public static function fromEnv(?string $nameOverride = null): self
     {
         return new self([
@@ -31,10 +40,28 @@ final class Database
             'name' => $nameOverride ?? Env::get('DB_NAME', 'lubie_dashboard'),
             'user' => Env::get('DB_USER', 'lubie_app'),
             'pass' => Env::get('DB_PASSWORD', ''),
-            'ssl_ca' => Env::get('DB_SSL_CA'),
+            'ssl_ca' => Env::get('DB_SSL_CA') ?: self::caFromEnv(),
             'ssl_verify' => Env::bool('DB_SSL_VERIFY', true),
             'retries' => Env::int('DB_CONNECT_RETRIES', 3),
         ]);
+    }
+
+    /**
+     * Hosts without a file system for secrets (Render) pass the provider's CA certificate as
+     * text in DB_SSL_CA_PEM. It is written once to the temp folder; it is public, not secret.
+     */
+    private static function caFromEnv(): ?string
+    {
+        $pem = Env::get('DB_SSL_CA_PEM');
+        if ($pem === null || !str_contains($pem, 'BEGIN CERTIFICATE')) {
+            return null;
+        }
+        $pem = str_replace('\\n', "\n", $pem);
+        $file = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'lubie-db-ca-' . substr(hash('sha256', $pem), 0, 16) . '.pem';
+        if (!is_file($file)) {
+            file_put_contents($file, $pem, LOCK_EX);
+        }
+        return $file;
     }
 
     public function pdo(): PDO

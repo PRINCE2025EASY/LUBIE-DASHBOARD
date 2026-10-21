@@ -57,9 +57,25 @@ final class Request
             $body,
             $headers,
             $_COOKIE,
-            (string) ($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0'),
+            self::clientIp($headers, (string) ($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0'), \Lubie\Support\Env::int('TRUSTED_PROXY_HOPS', 0)),
             $raw,
         );
+    }
+
+    /**
+     * Client IP behind a host's proxy (Render, Koyeb). With TRUSTED_PROXY_HOPS = n, take the n-th
+     * X-Forwarded-For entry from the right: entries further left are client-supplied and can be faked.
+     * 0 (default, XAMPP) uses REMOTE_ADDR only.
+     * @param array<string, string> $headers
+     */
+    public static function clientIp(array $headers, string $remote, int $hops): string
+    {
+        if ($hops <= 0 || empty($headers['x-forwarded-for'])) {
+            return $remote;
+        }
+        $list = array_values(array_filter(array_map('trim', explode(',', $headers['x-forwarded-for']))));
+        $ip = $list[count($list) - $hops] ?? $list[0] ?? $remote;
+        return filter_var($ip, FILTER_VALIDATE_IP) ? $ip : $remote;
     }
 
     public function header(string $name): ?string

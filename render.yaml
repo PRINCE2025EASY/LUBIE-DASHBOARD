@@ -1,0 +1,40 @@
+# Render Blueprint (free web service). Secrets marked sync: false are typed into the Render
+# dashboard by the owner; they are never stored in this file or the repository.
+services:
+  - type: web
+    name: lubie-dashboard
+    runtime: docker
+    plan: free
+    region: frankfurt
+    branch: main
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_KEY
+        generateValue: true
+      - key: BACKUP_ENCRYPTION_KEY
+        generateValue: true
+      - key: BACKUP_TOKEN
+        generateValue: true
+      - key: SESSION_SECURE_COOKIE
+        value: "1"
+      - key: TRUSTED_PROXY_HOPS
+        value: "1"
+      - key: SMS_PROVIDER
+        value: sandbox
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_NAME
+        value: defaultdb
+      - key: DB_USER
+        value: lubie_app
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_SSL_CA_PEM
+        sync: false
+      - key: DB_SSL_VERIFY
+        value: "1"

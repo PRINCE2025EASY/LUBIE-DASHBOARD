@@ -15,6 +15,9 @@ declare(strict_types=1);
  *   restore:verify --file=F --target=DB   Import F into the EMPTY database DB and compare counts and KPIs.
  *   alerts:run              Evaluate alert rules for every active project (for a daily scheduled task).
  *   sms:retry               Retry SMS messages that are due for another attempt.
+ *   setup:app-account --owner=root [--user=lubie_app] [--host=localhost] [--require-ssl]
+ *                           Uses the database OWNER account (password asked): create the least-privilege app account with
+ *                           per-table grants (audit_logs append-only). Prompts for the new password.
  *   doctor                  Read-only check of PHP, extensions, .env, database and schema. Shows no secrets.
  *
  * Secrets are never passed on the command line; they come from .env or the host settings.
@@ -193,6 +196,43 @@ try {
             $say('SMS retry pass finished.');
             break;
 
+        case 'setup:app-account':
+            $owner = $opt('owner');
+            if ($owner === null || $owner === '1') {
+                $fail('Give the owner account: --owner=root (XAMPP) or --owner=avnadmin (Aiven). You are asked for its password.');
+            }
+            $db = Database::fromEnvAs($owner, lubie_prompt("Password of {$owner} (press Enter if it has none)", true));
+            $user = (string) ($opt('user') ?? 'lubie_app');
+            $host = (string) ($opt('host') ?? 'localhost');
+            if (!preg_match('/^[a-z0-9_]{3,32}$/', $user) || !preg_match('/^[a-zA-Z0-9.%_-]{1,60}$/', $host)) {
+                $fail('Use a simple user name and host (for example --user=lubie_app --host=%).');
+            }
+            if ($user === $owner) {
+                $fail('The owner and the app account must be different.');
+            }
+            $tables = array_column($db->all("SELECT table_name AS t FROM information_schema.tables WHERE table_schema = DATABASE() AND table_type = 'BASE TABLE' ORDER BY table_name"), 't');
+            if (count($tables) < 31) {
+                $fail('Create the schema first (php bin/console.php migrate).');
+            }
+            $pw = lubie_prompt("New password for {$user}@{$host} (12+ characters)", true);
+            if (strlen($pw) < 12 || $pw !== lubie_prompt('Repeat password', true)) {
+                $fail('Passwords must match and be at least 12 characters.');
+            }
+            $pdo = $db->pdo();
+            $schema = (string) $db->value('SELECT DATABASE()');
+            $acct = $pdo->quote($user) . '@' . $pdo->quote($host);
+            // No read of mysql.user: managed hosts (Aiven) may not allow it.
+            $ssl = $opt('require-ssl') !== null ? ' REQUIRE SSL' : '';
+            $pdo->exec("CREATE USER IF NOT EXISTS {$acct} IDENTIFIED BY " . $pdo->quote($pw) . $ssl);
+            $pdo->exec("ALTER USER {$acct} IDENTIFIED BY " . $pdo->quote($pw) . $ssl);
+            $exists = false;
+            foreach ($tables as $t) {
+                $privs = match ((string) $t) { 'audit_logs' => 'SELECT, INSERT', 'schema_migrations' => 'SELECT', default => 'SELECT, INSERT, UPDATE, DELETE' };
+                $pdo->exec("GRANT {$privs} ON `{$schema}`.`{$t}` TO {$acct}");
+            }
+            $say("Account {$user}@{$host} ready with grants on " . count($tables) . " tables in {$schema}. Put the same password in DB_PASSWORD (in .env or the host settings).");
+            break;
+
         case 'doctor':
             $ok = static fn (bool $b) => $b ? 'OK  ' : 'FIX ';
             $say('Lubie dashboard check (read-only; no secret values shown)');
@@ -201,7 +241,13 @@ try {
                 $say((extension_loaded($ext) ? 'OK  ' : ($required ? 'FIX ' : 'WARN')) . "extension {$ext}" . (extension_loaded($ext) ? '' : ($required ? ' (required)' : ' (needed for ' . ['openssl' => 'backups', 'curl' => 'real SMS', 'fileinfo' => 'photo uploads later'][$ext] . ')')));
             }
             $say($ok(class_exists(\Dompdf\Dompdf::class)) . 'Dompdf (PDF export)' . (class_exists(\Dompdf\Dompdf::class) ? '' : ': vendor folder missing, print view used'));
-            $say($ok(is_file($root . '/.env')) . '.env file ' . (is_file($root . '/.env') ? 'found' : 'missing: copy .env.example to .env'));
+            if (is_file($root . '/.env')) {
+                $say('OK  .env file found');
+            } elseif (getenv('APP_KEY') !== false) {
+                $say('OK  settings come from the host environment (no .env file)');
+            } else {
+                $say('FIX .env file missing: copy .env.example to .env');
+            }
             foreach (['APP_KEY' => 32, 'BACKUP_ENCRYPTION_KEY' => 32, 'DB_PASSWORD' => 1] as $k => $min) {
                 $set = strlen((string) Env::get($k, '')) >= $min;
                 $say(($set ? 'OK  ' : 'WARN') . "{$k} " . ($set ? 'is set' : ($min > 1 ? "is missing or shorter than {$min} characters" : 'is empty')));
@@ -231,7 +277,7 @@ try {
             if ($tables > 0) {
                 $versions = array_column($db->all('SELECT version FROM schema_migrations ORDER BY version'), 'version');
                 $say($ok(in_array('0.3.0', $versions, true)) . 'Schema versions: ' . implode(', ', $versions) . (in_array('0.3.0', $versions, true) ? '' : ' (run migrate with an owner account)'));
-                $gen = (int) $db->value("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE() AND extra LIKE '%GENERATED%'");
+                $gen = (int) $db->value("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE() AND extra IN ('STORED GENERATED', 'VIRTUAL GENERATED', 'PERSISTENT GENERATED')");
                 $say($ok($gen >= 2) . "Generated columns: {$gen} (2 expected)");
                 $checks = (int) $db->value("SELECT COUNT(*) FROM information_schema.table_constraints WHERE constraint_schema = DATABASE() AND constraint_type = 'CHECK'");
                 $say($ok($checks >= 27) . "CHECK constraints: {$checks} (27 expected)");

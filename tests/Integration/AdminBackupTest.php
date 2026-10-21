@@ -108,6 +108,12 @@ final class AdminBackupTest extends IntegrationTestCase
         $this->assertTrue($res['ok'], json_encode($res));
         $this->assertGreaterThan(25, count($res['counts']));
         $this->assertCount(3, $res['kpis']);
+        // Every column comes back unchanged, including timestamps with default values (MySQL 8 marks them DEFAULT_GENERATED).
+        foreach (['users', 'projects', 'expenditures', 'progress_records', 'budgets', 'notifications'] as $t) {
+            $src = self::$db->one("CHECKSUM TABLE `{$t}`")['Checksum'];
+            $dst = $target->one("CHECKSUM TABLE `{$t}`")['Checksum'];
+            $this->assertSame($src, $dst, "{$t} identical after restore");
+        }
 
         $tampered = substr($blob, 0, -1) . chr(ord($blob[-1]) ^ 1);
         $this->expectExceptionMessage('integrity check failed');

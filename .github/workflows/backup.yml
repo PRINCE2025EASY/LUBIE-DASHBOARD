@@ -1,0 +1,32 @@
+# Off-site encrypted backup of the live database (NFR-06). Runs only when started by hand
+# until the repository is private; then uncomment the schedule. The file is AES-256-GCM
+# encrypted with BACKUP_ENCRYPTION_KEY, which never leaves the host settings.
+name: Backup
+
+on:
+  workflow_dispatch:
+  # schedule:
+  #   - cron: '17 2 * * *'   # 02:17 Africa/Accra (= UTC) daily
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Request backup (wakes a sleeping free host; allows 3 minutes)
+        env:
+          URL: ${{ secrets.LUBIE_URL }}
+          TOKEN: ${{ secrets.LUBIE_BACKUP_TOKEN }}
+        run: |
+          test -n "$URL" && test -n "$TOKEN"
+          curl -fsS --max-time 30 "$URL/health" || sleep 60
+          curl -fsS --max-time 120 -X POST -H "Authorization: Bearer $TOKEN" -D headers.txt -o "lubie_$(date -u +%Y%m%d_%H%M).sql.gz.enc" "$URL/api/v1/backup/run"
+          grep -i 'x-backup-sha256' headers.txt
+          head -c 8 lubie_*.enc | grep -q LUBIEBK1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lubie-backup
+          path: lubie_*.sql.gz.enc
+          retention-days: 14

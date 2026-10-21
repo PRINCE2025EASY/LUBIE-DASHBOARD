@@ -1,0 +1,17 @@
+.git
+.github
+.env
+.env.*
+!.env.example
+vendor
+node_modules
+storage/*
+!storage/.gitkeep
+tests
+tools
+docs
+*.enc
+*.sql.gz
+composer.cloud.json
+composer.cloud.lock
+.phpunit.cache

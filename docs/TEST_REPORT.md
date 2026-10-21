@@ -167,6 +167,9 @@ Results table (to fill in): participant, role, task, seconds, errors, help asked
 | D-13 | Stage 4 axe | Wide tables not reachable by keyboard scrolling | Medium (WCAG) | Fixed |
 | D-14 | Stage 4 axe | Five valuation inputs without accessible names | Medium (WCAG) | Fixed |
 | D-15 | Stage 4 timing | Dashboard after login took 3.2 s on throttled mobile (target 3 s) | Medium (NFR-02) | Fixed, now 2.1 s |
+| D-16 | Stage 6, MySQL 8 run | Backup skipped columns MySQL 8 marks DEFAULT_GENERATED (created_at and similar), so restored timestamps changed. MariaDB was not affected. New test compares table checksums after restore | High (NFR-06) | Fixed |
+| D-17 | Stage 5, first CI run | Dompdf 3.1.4 has six advisories published 22/07/2026 (SVG file read, DoS, chroot bypass). Exposure was low (the app renders only its own escaped HTML, no images), but CI correctly blocked it | Medium | Fixed: Dompdf 3.1.6 |
+| D-18 | Stage 6 review | Behind a host's proxy every user shared one IP, so the login IP throttle and audit IPs would be wrong | Medium | Fixed: TRUSTED_PROXY_HOPS, unit-tested |
 
 Open items (not code defects):
 
@@ -179,10 +182,21 @@ Open items (not code defects):
 | O-5 | openssl off in your php.ini | Backups wait for your php.ini decision |
 | O-6 | Real SMS not tested | Needs a provider account (paid); stays sandbox |
 
+## 10b. Stage 6 additions
+
+| Check | Result |
+|---|---|
+| Full suite on MySQL 8.0.46 over TLS, `sql_require_primary_key=ON`, `ONLY_FULL_GROUP_BY`, app user `REQUIRE SSL` | 103 tests pass |
+| Full suite on MariaDB 10.11 | 103 tests pass |
+| Connection without TLS to a `REQUIRE SSL` account | Refused (expected) |
+| CA certificate passed as text (`DB_SSL_CA_PEM`) | TLS 1.3 session |
+| Container layout (docker/apache.conf, php.ini, entrypoint) under Apache | /health 200; .env 403; src, vendor, config, database 404; HSTS; `__Host-` cookie; client IP taken from the trusted proxy hop |
+| GitHub Actions on PHP 8.2 + MariaDB 10.4.32 | Dependabot Dompdf 3.1.6 branch: all jobs green. main at 0c2ae89: failed at dependency install because of D-17 (fixed since) |
+| Docker image build | Not run here (no Docker in my workspace). The new CI job builds and smoke-tests it on every push |
+
 ## 11. Not run
 
 - Tests on your XAMPP (PHP 8.2.12, MariaDB 10.4.32).
-- MySQL 8 (Stage 6 host).
 - Dependency advisory scan (Stage 5 CI).
 - Usability sessions with real participants (protocol in section 9).
 - Screen reader and 200 % zoom check.
