@@ -4,7 +4,7 @@ Last updated: 21/10/2026 (Africa/Accra)
 
 ## Current stage
 
-Stage 6, Deploy: prepared (Docker image, Render blueprint, Aiven guide). Waiting for the owner to create the two free accounts and enter the secrets. Next after that: live checks, then Stage 7 (Documentation).
+Stage 6 waits for the owner (Render service, secrets, live checks). Stage 7 part 1 delivered: user manual, technical guide, API reference, operations guide, limitations, traceability pack. Stage 7 part 2 next: thesis text for Sections 3.15 to 3.19, figure captions, corrected Tables 3.4 to 3.9.
 
 ## Decisions recorded
 
@@ -21,6 +21,7 @@ Stage 6, Deploy: prepared (Docker image, Render blueprint, Aiven guide). Waiting
 | 21/10/2026 | XAMPP confirmed from its readme: Apache 2.4.58, MariaDB 10.4.32, PHP 8.2.12. php.ini change approved and made (backup kept). |
 | 21/10/2026 | Push of main and iteration-1 to the public repository approved. Owner runs usability sessions T1 to T5. |
 | 21/10/2026 | Owner pushed main (0c2ae89) from C:\Users\anaay\LUBIE-DASHBOARD. First CI run failed on Dompdf advisories; fixed with 3.1.6. |
+| 21/10/2026 | Owner pushed main and iteration-1 at b08ce59 from htdocs content; closed Dependabot Dompdf PR; Aiven account and project created. CI: container job green, PHPUnit failing on MariaDB 10.4 (cause not visible without sign-in; annotations added). |
 | 21/10/2026 | Hosting: Render free web service (Docker, Frankfurt) + Aiven free MySQL recommended (docs/DEPLOYMENT_OPTIONS.md). |
 
 ## Work completed
@@ -94,6 +95,10 @@ Stage 2:
 - New: `setup:app-account` console command, `DB_SSL_CA_PEM`, `TRUSTED_PROXY_HOPS`, CI container job, manual Backup workflow.
 - Verified on MySQL 8.0 over TLS (103 tests) and under the container's Apache layout. Docker image itself is built only in CI.
 - Local XAMPP: doctor showed every PHP check OK; the database refused `lubie_app` (account missing or password mismatch). `.env.example` had a password typed into it; restored to the blank template, nothing reached GitHub. php.ini line 942 reverted because openssl was already loaded at line 984.
+
+## Stage 7 part 1 delivered
+
+- `docs/USER_MANUAL.md` (six role guides), `docs/TECHNICAL_GUIDE.md`, `docs/API_REFERENCE.md` (generated, 83 routes), `docs/OPERATIONS_GUIDE.md` (backup, restore, deployment, rollback, security checklist), `docs/KNOWN_LIMITATIONS.md`, `docs/TRACEABILITY_PACK.csv` (54 requirements with status and evidence).
 
 ## Not run yet
 

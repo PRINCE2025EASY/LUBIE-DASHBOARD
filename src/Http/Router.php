@@ -12,7 +12,7 @@ namespace Lubie\Http;
  */
 final class Router
 {
-    /** @var list<array{method:string, regex:string, names:list<string>, handler:array{0:class-string,1:string}, guard:string}> */
+    /** @var list<array{method:string, pattern:string, regex:string, names:list<string>, handler:array{0:class-string,1:string}, guard:string}> */
     private array $routes = [];
 
     /** @param array{0:class-string,1:string} $handler */
@@ -23,7 +23,13 @@ final class Router
             $names[] = $m[1];
             return '([^/]+)';
         }, $pattern);
-        $this->routes[] = ['method' => $method, 'regex' => '#^' . $regex . '$#', 'names' => $names, 'handler' => $handler, 'guard' => $guard];
+        $this->routes[] = ['method' => $method, 'pattern' => $pattern, 'regex' => '#^' . $regex . '$#', 'names' => $names, 'handler' => $handler, 'guard' => $guard];
+    }
+
+    /** Route table for documentation (tools/gen_api_reference.php). @return list<array<string, mixed>> */
+    public function all(): array
+    {
+        return $this->routes;
     }
 
     /** @return array{handler:array{0:class-string,1:string}, guard:string}|null */

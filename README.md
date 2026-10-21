@@ -39,4 +39,7 @@ GitHub Actions runs the same checks on PHP 8.2 with MariaDB 10.4.32 on every pus
 - `docs/stage1/`: findings, issues, assumptions, MoSCoW, requirements, traceability
 - `docs/DESIGN_SPECIFICATION.md`, `docs/DATA_DICTIONARY.md`, `docs/USE_CASE_SPECIFICATIONS.md`
 - `docs/diagrams/`: draw.io files and previews
+- `docs/USER_MANUAL.md`, `docs/TECHNICAL_GUIDE.md`, `docs/API_REFERENCE.md`, `docs/OPERATIONS_GUIDE.md`
+- `docs/INSTALL_XAMPP.md`, `docs/DEPLOY.md`, `docs/DEPLOYMENT_OPTIONS.md`
+- `docs/TEST_REPORT.md`, `docs/TRACEABILITY_PACK.csv`, `docs/KNOWN_LIMITATIONS.md`
 - `PROJECT_STATE.md`: current stage, decisions, checks, open items
