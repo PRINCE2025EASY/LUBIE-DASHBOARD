@@ -1,6 +1,6 @@
 -- =====================================================================
 -- Lubie Construction Works - Project Monitoring Dashboard
--- schema.sql  version 0.2.0  (Stage 2 design baseline, 21/10/2026)
+-- schema.sql  version 0.3.0  (Stage 3 Iteration 1, 21/10/2026)
 -- Target: MariaDB 10.4+ (XAMPP) and MySQL 8.0.16+ (production).
 -- Conventions: utf8mb4; money DECIMAL(15,2) GH₵; percentages DECIMAL(5,2);
 -- dates stored ISO (DATE); timestamps DATETIME in Africa/Accra (= UTC, no DST).
@@ -97,6 +97,7 @@ CREATE TABLE projects (
   status              ENUM('planning','active','on_hold','completed','archived') NOT NULL DEFAULT 'planning',
   is_demo             TINYINT(1) NOT NULL DEFAULT 0,             -- synthetic data flag
   last_change_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,  -- polling stamp (FR-24)
+  change_seq          INT UNSIGNED NOT NULL DEFAULT 0,             -- increments on every change (poll token)
   last_alert_eval_on  DATE NULL,                                  -- daily evaluation guard
   created_by          INT UNSIGNED NULL,
   created_at          DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -599,6 +600,6 @@ CREATE TABLE schema_migrations (
   PRIMARY KEY (version)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO schema_migrations (version) VALUES ('0.2.0');
+INSERT INTO schema_migrations (version) VALUES ('0.2.0'), ('0.3.0');
 
 SET FOREIGN_KEY_CHECKS = 1;

@@ -7,7 +7,7 @@ Companion files: `docs/stage1/05_Master_Requirements.md` (requirement IDs), `doc
 
 ## 1. Scope
 
-The system is a web-based, mobile-first monitoring dashboard for one construction company. It covers projects, activities, milestones, progress with PM approval, cost-weighted KPIs and earned value, budgets with Director-approved revisions, expenditure, valuations and payments, labour, materials, material requests and equipment, rule-based alerts with SMS for critical events, reporting, audit, backup and recovery, and offline capture for site staff (Iteration 2).
+The system is a web-based, mobile-first monitoring dashboard for one construction company. It covers projects, activities, milestones, progress with PM approval, cost-weighted KPIs and earned value, budgets with Director-approved revisions, expenditure, valuations and payments, labour, materials, material requests and equipment, rule-based alerts with SMS for critical events, reporting, audit, backup and recovery, and offline capture for site staff (Iteration 1, Must).
 
 Near-real-time means: a saved entry is visible at once to the user who saved it, and to other users within one polling interval (60 s by default). The system does not sense site events; timeliness depends on staff entering data. Every dashboard and KPI view shows "Last updated".
 
@@ -21,7 +21,7 @@ Iterations:
 | 2 (Should, then first Could) | FR-17 and A8, FR-18, FR-21, FR-33, FR-38 offline, NFR-08 to NFR-10 refinements, remaining FR-26 reports; then FR-22 SMS |
 | 3 (Could, if time allows) | FR-19 and A14, FR-34 (A10), FR-37 (merged into FR-38 if offline ships), FR-39, FR-40 |
 
-Decisions recorded on 21/10/2026: Director has no audit-trail access; site engineers may create and edit activities (never cost fields); clients receive in-app notices only, never SMS. Offline priority (Q1) not answered, so the default (Should, Iteration 2) applies.
+Decisions recorded on 21/10/2026: Director has no audit-trail access; site engineers may create and edit activities (never cost fields); clients receive in-app notices only, never SMS. Second decision set, same day: offline mode is Must, Iteration 1 (FR-38); the repository stays public for now; the project lives in C:\xampp\htdocs\lubie-dashboard; the Administrator, not the Director, sees the audit trail.
 
 ## 2. Architecture and technology decisions
 
@@ -78,6 +78,7 @@ lubie-dashboard/
 | Thin controllers | `src/Controllers` | Parse request, call one service method, return DTO; no SQL, no rules |
 | Service layer | `src/Services` | All business rules (approval, budget supersession, KPI, alerts) live here and are unit-tested |
 | Repository | `src/Repositories` | All SQL in one place per aggregate; prepared statements only |
+| Query service (read side) | `DashboardService`, `AlertQueryService`, `AuditQueryService`, `ThresholdService` | Read-only reporting queries that join many aggregates live in these services, not in repositories (a light CQRS split). Exception: ThresholdService and the alert writer also write their own small tables directly. All SQL uses prepared statements |
 | Single responsibility | Alert rules, middleware | One class per alert rule; one middleware per concern |
 | Open/closed | `Alerts/Rules`, `Adapters/Sms` | New rule or provider = new class registered in config |
 | Liskov, interface segregation | `SmsGateway`, `Clock`, `AlertRule` | Small interfaces; sandbox and HTTP gateways interchangeable in tests |
@@ -298,7 +299,7 @@ Input: project ID, status date t (default today, Africa/Accra). Uses only approv
 | Data currency | Days since the latest approved progress record on the project | No approved record: "no approved progress yet" |
 | Days to planned completion | planned_finish - t (FR-40) | - |
 
-Money uses `brick/math` BigDecimal or integer pesewas internally (decided in Stage 3); never float. Ratios rounded to 2 decimals only for display. EAC is not implemented.
+Money uses integer pesewas internally (`Lubie\Support\Money`, decided in Stage 3; no extra library); never float. Ratios rounded to 2 decimals only for display. EAC is not implemented.
 
 Worked example (thesis Table 2.1, unit test UT-KPI-01): BAC 200,000; PV 98,000; EV 70,000; AC 80,000; completion 35.00%; SV -28,000.00; SPI 0.71; CV -10,000.00; CPI 0.88. Demo seed reference values (computed by `tools/reference_kpi_check.py` on 21/10/2026, change daily because dates are relative): DEMO-P1 completion 61.8%, SPI 0.91, CPI 0.55, budget consumed 112.0%; DEMO-P2 54.7%, SPI 0.86, CPI 0.64, 85.0%.
 
@@ -355,7 +356,7 @@ A1 to A15 conditions in the demo seed were checked by `tools/reference_kpi_check
 - If `changed = true`, the page fetches the dashboard DTO and redraws cards and charts without reload.
 - The page shows two times: "Data last updated" (server `last_change_at`, i.e. last save) and "Checked" (last successful poll). On failure: exponential backoff (60, 120, 240 s, max 10 min) and a banner "Connection problem, showing data from <time>". On 503 from a sleeping host: "Waking up the server..." state with retry.
 
-## 13. Offline design (FR-38, Iteration 2)
+## 13. Offline design (FR-38, Must, Iteration 1)
 
 - Installable web app: `manifest.webmanifest` and `sw.js` cache the app shell (HTML shells, CSS, JS, vendor libraries, icons) with a versioned cache; API GET responses for the user's assigned projects use network-first with cache fallback, marked "Offline, last synced <time>".
 - Offline capture (SE and PM): progress entries, labour attendance, material receipts and usage, equipment status. Each entry gets a `client_uuid` (crypto.randomUUID) and goes to an IndexedDB outbox, encrypted with AES-GCM using a key derived per login session and held only in memory and session storage, so a logged-out device cannot read the queue.

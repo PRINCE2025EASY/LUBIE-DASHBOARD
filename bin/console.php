@@ -1,0 +1,203 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * Lubie dashboard command line. Run from the project folder:
+ *   php bin/console.php <command> [options]
+ *
+ * Commands
+ *   migrate                 Create the schema in an empty database, or apply new migrations.
+ *   setup:first-admin       Create the first Administrator (prompts; refuses if one exists).
+ *   seed:demo --yes         Load synthetic demo data (refused when APP_ENV=production).
+ *   test-db:reset --yes     Empty and rebuild the test database named in DB_TEST_NAME (must end in _test).
+ *   backup:create --out=F   Write an encrypted backup file to F (outside public/).
+ *   restore:verify --file=F --target=DB   Import F into the EMPTY database DB and compare counts and KPIs.
+ *   alerts:run              Evaluate alert rules for every active project (for a daily scheduled task).
+ *   sms:retry               Retry SMS messages that are due for another attempt.
+ *
+ * Secrets are never passed on the command line; they come from .env or the host settings.
+ */
+
+use Lubie\Db\Database;
+use Lubie\Db\Migrator;
+use Lubie\Db\SqlScript;
+use Lubie\Repositories\UserRepository;
+use Lubie\Services\AlertService;
+use Lubie\Services\AuthService;
+use Lubie\Services\BackupService;
+use Lubie\Services\KpiService;
+use Lubie\Sms\SmsDispatcher;
+use Lubie\Support\Clock;
+use Lubie\Support\Env;
+
+if (PHP_SAPI !== 'cli') {
+    http_response_code(404);
+    exit;
+}
+require dirname(__DIR__) . '/config/bootstrap.php';
+
+$root = dirname(__DIR__);
+$args = array_slice($argv, 1);
+$cmd = $args[0] ?? 'help';
+$opt = static function (string $name) use ($args): ?string {
+    foreach ($args as $a) {
+        if ($a === "--{$name}") {
+            return '1';
+        }
+        if (str_starts_with($a, "--{$name}=")) {
+            return substr($a, strlen($name) + 3);
+        }
+    }
+    return null;
+};
+$say = static fn (string $m) => fwrite(STDOUT, $m . PHP_EOL);
+$fail = static function (string $m): never {
+    fwrite(STDERR, 'Error: ' . $m . PHP_EOL);
+    exit(1);
+};
+
+function lubie_prompt(string $label, bool $hidden = false): string
+{
+    fwrite(STDOUT, $label . ': ');
+    $sttyOk = $hidden && DIRECTORY_SEPARATOR === '/' && @shell_exec('stty -g 2>/dev/null') !== null;
+    if ($sttyOk) {
+        $state = trim((string) shell_exec('stty -g'));
+        shell_exec('stty -echo');
+        $v = fgets(STDIN);
+        shell_exec('stty ' . escapeshellarg($state));
+        fwrite(STDOUT, PHP_EOL);
+    } else {
+        if ($hidden) {
+            fwrite(STDOUT, PHP_EOL . '(This terminal cannot hide typing. Make sure nobody is watching.)' . PHP_EOL . $label . ': ');
+        }
+        $v = fgets(STDIN);
+    }
+    return trim((string) $v);
+}
+
+try {
+    switch ($cmd) {
+        case 'migrate':
+            foreach ((new Migrator(Database::fromEnv(), $root))->migrate() as $m) {
+                $say($m);
+            }
+            break;
+
+        case 'setup:first-admin':
+            $c = lubie_container();
+            $users = $c->get(UserRepository::class);
+            if ($users->countAdmins() > 0) {
+                $fail('An Administrator already exists. Use the Users page to add more.');
+            }
+            $username = strtolower(lubie_prompt('Username (lower case)'));
+            if (!preg_match('/^[a-z0-9._-]{3,50}$/', $username)) {
+                $fail('Use 3 to 50 lower-case letters, numbers, dot, dash or underscore.');
+            }
+            $name = lubie_prompt('Full name');
+            if (mb_strlen($name) < 2) {
+                $fail('Enter the full name.');
+            }
+            $pw = lubie_prompt('Temporary password', true);
+            if ($pw !== lubie_prompt('Repeat password', true)) {
+                $fail('The passwords do not match.');
+            }
+            $c->get(AuthService::class)->assertStrong($pw, $username);
+            $id = $users->create(['role_id' => $users->roleId('admin'), 'username' => $username, 'full_name' => $name, 'phone' => null, 'email' => null],
+                password_hash($pw, PASSWORD_DEFAULT, AuthService::HASH_OPTIONS), null);
+            $c->get(\Lubie\Audit\AuditLogger::class)->log(null, 'create', 'user', (string) $id, null, ['username' => $username, 'role' => 'admin', 'via' => 'cli']);
+            $say("Administrator '{$username}' created. You must choose a new password at first login.");
+            break;
+
+        case 'seed:demo':
+            if (Env::get('APP_ENV') === 'production') {
+                $fail('Demo data is never loaded when APP_ENV=production.');
+            }
+            if ($opt('yes') === null) {
+                $fail('Add --yes to confirm loading synthetic demo data into ' . Env::get('DB_NAME', 'lubie_dashboard') . '.');
+            }
+            $db = Database::fromEnv();
+            if ((int) $db->value('SELECT COUNT(*) FROM users') > 0) {
+                $fail('This database already has users. Demo data loads only into a fresh database (run migrate on an empty one first).');
+            }
+            $n = SqlScript::runFile($db, $root . '/database/seed_demo.sql');
+            $say("Demo data loaded ({$n} statements). Demo password is in the comment at the top of database/seed_demo.sql.");
+            break;
+
+        case 'test-db:reset':
+            $name = (string) Env::get('DB_TEST_NAME', '');
+            if (!preg_match('/^[a-z0-9_]+_test$/', $name)) {
+                $fail('Set DB_TEST_NAME to a database name that ends in _test.');
+            }
+            if ($opt('yes') === null) {
+                $fail("Add --yes to confirm emptying the test database {$name}.");
+            }
+            $db = Database::fromEnv($name);
+            (new Migrator($db, $root))->resetTestDatabase();
+            $say("Test database {$name} rebuilt with demo data.");
+            break;
+
+        case 'backup:create':
+            $out = $opt('out');
+            if ($out === null || $out === '1') {
+                $fail('Give --out=path\\to\\file.sql.gz.enc');
+            }
+            $real = realpath(dirname($out));
+            if ($real === false) {
+                $fail('The folder for --out does not exist.');
+            }
+            if (str_starts_with($real, realpath($root . '/public') ?: "\0")) {
+                $fail('Never write backups inside public/.');
+            }
+            $b = lubie_container()->get(BackupService::class)->create(null, 'manual');
+            file_put_contents($out, $b['bytes']);
+            $say("Backup written: {$out} (" . strlen($b['bytes']) . " bytes, SHA-256 {$b['sha256']}).");
+            break;
+
+        case 'restore:verify':
+            $file = $opt('file');
+            $target = (string) $opt('target');
+            if ($file === null || !is_file($file)) {
+                $fail('Give --file=path to an existing backup file.');
+            }
+            if (!preg_match('/^[a-z0-9_]+$/', $target) || $target === Env::get('DB_NAME')) {
+                $fail('Give --target=<empty database name>, different from DB_NAME.');
+            }
+            $tdb = Database::fromEnv($target);
+            if ((int) $tdb->value('SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE()') > 0) {
+                $fail("Database {$target} is not empty. Restore verification needs an empty database.");
+            }
+            $clock = new Clock(Env::get('APP_FIXED_NOW'));
+            $res = BackupService::restoreVerify((string) file_get_contents($file), $tdb, new KpiService(), $clock);
+            foreach ($res['counts'] as $t => $c) {
+                if ($c['expected'] !== $c['actual']) {
+                    $say("  MISMATCH {$t}: expected {$c['expected']}, found {$c['actual']}");
+                }
+            }
+            $say(sprintf('Tables checked: %d. Projects KPI-checked: %d. Time: %.2f s. Result: %s',
+                count($res['counts']), count($res['kpis']), $res['seconds'], $res['ok'] ? 'PASS' : 'FAIL'));
+            exit($res['ok'] ? 0 : 2);
+
+        case 'alerts:run':
+            $c = lubie_container();
+            $ids = array_column($c->get(Database::class)->all("SELECT id FROM projects WHERE status IN ('planning','active','on_hold')"), 'id');
+            foreach ($ids as $pid) {
+                $c->get(AlertService::class)->evaluate((int) $pid);
+            }
+            $say('Alerts evaluated for ' . count($ids) . ' project(s).');
+            break;
+
+        case 'sms:retry':
+            lubie_container()->get(SmsDispatcher::class)->retryDue();
+            $say('SMS retry pass finished.');
+            break;
+
+        default:
+            $say("Commands: migrate, setup:first-admin, seed:demo --yes, test-db:reset --yes, backup:create --out=F,\n"
+                . '          restore:verify --file=F --target=DB, alerts:run, sms:retry');
+    }
+} catch (\Lubie\Http\HttpException $e) {
+    $fail($e->getMessage() . ($e->fields ? ' ' . implode(' ', $e->fields) : ''));
+} catch (\Throwable $e) {
+    $fail($e->getMessage());
+}

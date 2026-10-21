@@ -44,7 +44,7 @@ E28,Require the project manager to approve progress entries made by site staff,4
 E29,Require the Director to approve changes (revisions) to the approved project budget,4.33,0.98,12,80.0,Must,,Must,,FR-31
 E30,Back up the data every day so that it can be restored quickly if lost,3.93,1.16,11,73.3,Should,O1,Must,Backup precondition; all 14 interviewees asked for daily backups.,"FR-36, NFR-06"
 F1,Send notifications through WhatsApp,2.80,1.15,6,40.0,Won't,O6,Won't,Outside scope (Section 1.8).,W-01
-F2,Enter data without internet and send it later (offline use),4.40,0.83,12,80.0,Must,Owner directive + O4,Should (proposed),Rule gives Must. Thesis 1.8 excluded it; your master prompt s8.17 brings it into scope. Proposed Should (Iteration 2) because it exceeds the MVP time box and depends on the entry modules. Open question Q1.,FR-38
+F2,Enter data without internet and send it later (offline use),4.40,0.83,12,80.0,Must,Owner directive (O5),Must,"Rule gives Must. Thesis 1.8 excluded it; your master prompt s8.17 brings it into scope. Owner decision 21/10/2026: Must, Iteration 1. Thesis s1.8, s1.9 and Table 3.7 need updating.",FR-38
 F3,A separate downloadable mobile application,3.40,1.18,8,53.3,Could,O6,Won't,Native app outside scope. The offline web app (PWA) can be added to the home screen.,W-02
 F4,Track equipment or vehicles by GPS,4.60,0.74,13,86.7,Must,O6,Won't,GPS outside scope (rule gives Must).,W-03
 F5,Predict likely delays or cost overruns from past project data,4.67,0.62,14,93.3,Must,O6,Won't,Predictive analytics outside scope (rule gives Must).,W-04

@@ -88,6 +88,7 @@ Core project data, payment period, status, polling stamp (thesis entity).
 | status | ENUM('planning','active','on_hold','completed','archived') | N | 'planning' |  |  |
 | is_demo | TINYINT(1) | N | 0 |  | synthetic data flag |
 | last_change_at | DATETIME | N | CURRENT_TIMESTAMP |  | polling stamp (FR-24) |
+| change_seq | INT UNSIGNED | N | 0 |  | increments on every change (poll token) |
 | last_alert_eval_on | DATE | Y |  |  | daily evaluation guard |
 | created_by | INT UNSIGNED | Y |  | FK → users.id |  |
 | created_at | DATETIME | N | CURRENT_TIMESTAMP |  |  |

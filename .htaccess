@@ -1,0 +1,12 @@
+# Used only when the project folder itself is under htdocs (http://localhost/lubie-dashboard/).
+# Everything is sent to public/; .env, src/, config/, database/, vendor/ are never served.
+Options -Indexes
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(\.env|\.git|src|config|database|vendor|tests|bin|storage|docs|tools|templates)(/|$) - [F,L]
+    RewriteCond %{REQUEST_URI} !/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>

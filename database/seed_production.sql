@@ -64,6 +64,6 @@ INSERT INTO system_settings (setting_key, value, value_type, description) VALUES
  ('sms_monthly_cap_total',    '0',           'int',    'Company-wide monthly SMS cap; 0 = no cap'),
  ('backup_daily_keep',        '7',           'int',    'Daily backups retained'),
  ('backup_weekly_keep',       '4',           'int',    'Weekly backups retained'),
- ('offline_enabled',          '0',           'bool',   'Offline mode (FR-38, Iteration 2)'),
+ ('offline_enabled',          '1',           'bool',   'Offline mode (FR-38, Iteration 1)'),
  ('app_timezone',             'Africa/Accra','string', 'Display and business-date time zone'),
  ('currency_code',            'GHS',         'string', 'Displayed as GH₵');

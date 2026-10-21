@@ -42,8 +42,8 @@ Base wording: thesis Table 3.4 (FR-01 to FR-27) and Table 3.5 (NFR-01 to NFR-10)
 | FR-34 | Material reorder alert | The system shall raise an in-app alert (A10) when a material balance falls below its reorder level. | Could | - | 3 |
 | FR-35 | Director cross-project view | The system shall give the Director a consolidated cross-project comparison (% complete, CV, SV, delayed activities, upcoming milestones, open alerts) for all projects without assignment. | Must | - | 1 |
 | FR-36 | Backup and restore function | The system shall provide a daily full logical backup through an administrator function and a token-protected endpoint for an external scheduler, compressed and encrypted, delivered off the host, with 7 daily and 4 weekly retention and a documented, tested restore. | Must | O1 | 1 |
-| FR-37 | Form resilience and draft autosave | The system shall keep form input on failure, state clearly that data were not saved, and autosave unsaved drafts in the browser. | Could | - | 3 (merged into FR-38 if offline approved) |
-| FR-38 | Offline operation with synchronisation | The system shall work offline as an installable web app: cached app shell and last-synced read-only views, offline capture of progress, labour, material and equipment entries in an encrypted local queue, and automatic synchronisation with server-side validation when the connection returns. | Should (proposed; Q1) | Owner directive + O4 (time box) | 2 |
+| FR-37 | Form resilience and draft autosave | The system shall keep form input on failure, state clearly that data were not saved, and autosave unsaved drafts in the browser. | Could | Delivered with FR-38 | 1 (part of FR-38) |
+| FR-38 | Offline operation with synchronisation | The system shall work offline as an installable web app: cached app shell and last-synced read-only views, offline capture of progress, labour, material and equipment entries (progress in Iteration 1; the others as their modules arrive) in an encrypted local queue, and automatic synchronisation with server-side validation when the connection returns. | Must | Owner directive (O5), decision 21/10/2026 | 1 |
 | FR-39 | Progress photo | The system shall allow one optional photo per progress entry, compressed in the browser to about 200 KB, type-checked and stored in the database or external object storage. | Could | - | 3 |
 | FR-40 | Days remaining to planned completion | The system shall show the number of days remaining to the planned completion date on the project KPI cards. | Could | Single response | 3 |
 | FR-41 | Dark and light theme | The system shall offer a dark/light mode toggle that remembers the user's choice. | Must | O5 owner directive | 1 |
@@ -83,6 +83,6 @@ Base wording: thesis Table 3.4 (FR-01 to FR-27) and Table 3.5 (NFR-01 to NFR-10)
 | W-11 | 'Value addition at management level' | D21 open text, 1 response, meaning unclear | Won't until clarified |
 | W-12 | Fallback channel when the system is down | CL-01, CL-03, CL-04, CL-05 | Operating procedure, not a feature |
 
-Counts: Must 40, Should 8, Could 6, Won't 12.
+Counts: Must 41, Should 7, Could 6, Won't 12.
 
 Old-to-new ID map (Table 3.8 -> master): FR-23 payment certificates -> FR-28; FR-24 overview -> FR-23; FR-25 refresh -> FR-24; FR-26 audit -> FR-25; FR-27 export -> FR-26; FR-28 client summary -> FR-27. FR-01 to FR-22 unchanged.

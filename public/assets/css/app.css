@@ -1,0 +1,60 @@
+/* Lubie dashboard styles. Bootstrap 5.3 does the heavy lifting; this file adds touch
+   targets, chart sizing and a few dashboard parts. Works in light and dark themes
+   because it uses Bootstrap's CSS variables only. */
+
+:root {
+  --lubie-brand: #0b5d8f;
+}
+[data-bs-theme="dark"] {
+  --lubie-brand: #5fb0e4;
+}
+
+body { min-height: 100vh; background: var(--bs-body-bg); }
+#app:focus { outline: none; }
+
+/* Navigation */
+.app-nav .navbar-brand { color: var(--lubie-brand); font-weight: 600; }
+.project-tabs { overflow-x: auto; flex-wrap: nowrap; white-space: nowrap; scrollbar-width: thin; }
+.project-tabs .nav-link { padding: .6rem .9rem; }
+
+/* Touch targets: at least 44 x 44 px for site use on phones (NFR usability). */
+.btn-touch, .app-nav .btn, .project-tabs .nav-link { min-height: 44px; }
+.btn-touch { min-width: 44px; display: inline-flex; align-items: center; justify-content: center; gap: .25rem; }
+@media (pointer: coarse) {
+  .btn, .form-control, .form-select { min-height: 44px; }
+  .btn-sm { min-height: 40px; }
+}
+
+/* KPI cards */
+.kpi-card .kpi-value { line-height: 1.2; word-break: break-word; }
+.kpi-card .kpi-info { line-height: 1; text-decoration: none; }
+.status-badge { font-weight: 500; white-space: normal; text-align: left; }
+
+/* Charts keep a fixed height so the page does not jump while they draw. */
+.chart-box { position: relative; height: 280px; }
+@media (max-width: 575.98px) { .chart-box { height: 220px; } }
+
+/* Client page */
+.client-progress { height: 2rem; font-size: 1rem; }
+.client-progress .progress-bar { min-width: 2.5rem; }
+
+.last-updated { color: var(--bs-secondary-color); font-size: .875rem; }
+
+/* Login and other public pages */
+.public-main { max-width: 26rem; }
+
+/* Tables on small screens */
+.table td, .table th { vertical-align: middle; }
+@media (max-width: 575.98px) {
+  .table { font-size: .875rem; }
+}
+
+/* Print: hide controls, keep content. */
+@media print {
+  .app-nav, .noprint, .btn, .offcanvas, .toast-container { display: none !important; }
+  .card { break-inside: avoid; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
