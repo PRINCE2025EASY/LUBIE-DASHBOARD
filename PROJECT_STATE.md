@@ -4,7 +4,7 @@ Last updated: 21/10/2026 (Africa/Accra)
 
 ## Current stage
 
-Stage 4, Test: delivered, waiting at the gate for "proceed". Next: Stage 5 (GitHub).
+Stage 5, GitHub: prepared. Push waits for the owner (the cloud workspace has no credential for the repository). Next: Stage 6 (Deploy).
 
 ## Decisions recorded
 
@@ -18,7 +18,8 @@ Stage 4, Test: delivered, waiting at the gate for "proceed". Next: Stage 5 (GitH
 | 21/10/2026 | Repository stays public for now; owner will make it private later. Push still needs approval at Stage 5. |
 | 21/10/2026 | Project folder approved: C:\xampp\htdocs\lubie-dashboard. |
 | 21/10/2026 | Administrator sees the audit trail; Director does not. |
-| 21/10/2026 | XAMPP confirmed from its readme: Apache 2.4.58, MariaDB 10.4.32, PHP 8.2.12. php.ini change not yet approved. |
+| 21/10/2026 | XAMPP confirmed from its readme: Apache 2.4.58, MariaDB 10.4.32, PHP 8.2.12. php.ini change approved and made (backup kept). |
+| 21/10/2026 | Push of main and iteration-1 to the public repository approved. Owner runs usability sessions T1 to T5. |
 
 ## Work completed
 
@@ -77,6 +78,13 @@ Stage 2:
 - `php bin/console.php doctor`: read-only set-up check for XAMPP.
 - Fixes: contrast, keyboard-scrollable tables, input names, Chart.js loaded on demand (dashboard 3.2 s to 2.1 s on throttled mobile), clear message for wrong DB credentials, completed projects closed to new activities (already enforced; now tested).
 
+## Stage 5 (GitHub) prepared
+
+- `.github/workflows/ci.yml`: PHP 8.2 and MariaDB 10.4.32 service, composer validate and audit, PHP lint, test database build, doctor, PHPUnit with coverage, JavaScript lint.
+- `.github/dependabot.yml`, `SECURITY.md`, `package.json` and `eslint.config.mjs` (development only).
+- History scanned before push: no .env, keys, backups or dumps. The only fixed password is the documented demo password in `database/seed_demo.sql` (synthetic accounts only).
+- `C:\xampp\htdocs\lubie-dashboard` is now the git working copy (branches main and iteration-1, remote origin set). CI has not run yet: it starts on the first push.
+
 ## Not run yet
 
 - On your XAMPP: PHP 8.2.12 and MariaDB (10.4 expected, not confirmed). The app was not run on your computer yet.
@@ -95,6 +103,6 @@ None open. Open environment items O-1 to O-6 in docs/TEST_REPORT.md.
 2. Assumptions marked "Yes" in `docs/stage1/03_Assumptions_Register.md`.
 3. Stage 5: push branch iteration-1 to PRINCE2025EASY/LUBIE-DASHBOARD (public).
 
-## Next steps (Stage 5, GitHub)
+## Next steps
 
-With your approval: push branch iteration-1 (and main) to PRINCE2025EASY/LUBIE-DASHBOARD, add a GitHub Actions workflow (PHP 8.2, MariaDB 10.4 service, lint, PHPUnit, composer audit), branch protection advice, release tag v0.4.0.
+1. Owner pushes main and iteration-1 (docs/GITHUB_PUSH.md). 2. Check the first CI run. 3. Tag v0.4.0. 4. Stage 6: choose a free host and an online MySQL, deploy with HTTPS.
