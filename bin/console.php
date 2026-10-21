@@ -277,7 +277,7 @@ try {
             if ($tables > 0) {
                 $versions = array_column($db->all('SELECT version FROM schema_migrations ORDER BY version'), 'version');
                 $say($ok(in_array('0.3.0', $versions, true)) . 'Schema versions: ' . implode(', ', $versions) . (in_array('0.3.0', $versions, true) ? '' : ' (run migrate with an owner account)'));
-                $gen = (int) $db->value("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE() AND extra IN ('STORED GENERATED', 'VIRTUAL GENERATED', 'PERSISTENT GENERATED')");
+                $gen = (int) $db->value("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE() AND generation_expression IS NOT NULL AND generation_expression <> ''");
                 $say($ok($gen >= 2) . "Generated columns: {$gen} (2 expected)");
                 $checks = (int) $db->value("SELECT COUNT(*) FROM information_schema.table_constraints WHERE constraint_schema = DATABASE() AND constraint_type = 'CHECK'");
                 $say($ok($checks >= 27) . "CHECK constraints: {$checks} (27 expected)");

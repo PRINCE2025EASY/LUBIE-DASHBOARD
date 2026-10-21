@@ -77,7 +77,26 @@ jobs:
         run: php bin/console.php doctor
 
       - name: PHPUnit
-        run: php -d pcov.enabled=1 vendor/bin/phpunit --coverage-text --log-junit junit.xml
+        run: php -d pcov.enabled=1 vendor/bin/phpunit --coverage-text --log-junit junit.xml 2>&1 | tee phpunit.txt; exit ${PIPESTATUS[0]}
+        shell: bash
+
+      # Failures become annotations, which anyone can read on the run page and through the
+      # public API (job logs need a sign-in).
+      - name: Report failed tests
+        if: failure()
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os, xml.etree.ElementTree as ET
+          if os.path.exists('junit.xml'):
+              for tc in ET.parse('junit.xml').iter('testcase'):
+                  for bad in list(tc.findall('failure')) + list(tc.findall('error')):
+                      msg = (bad.text or bad.get('message') or '').strip().replace('%', '%25').replace('\r', '').replace('\n', '%0A')[:1500]
+                      print(f"::error title={tc.get('class', '')}::{tc.get('name')}%0A{msg}")
+          if os.path.exists('phpunit.txt'):
+              tail = open('phpunit.txt', errors='replace').read()[-3000:].replace('%', '%25').replace('\n', '%0A')
+              print(f"::error title=PHPUnit output (last part)::{tail}")
+          PY
 
       - name: Keep test results
         if: always()
