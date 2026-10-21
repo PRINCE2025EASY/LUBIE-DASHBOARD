@@ -1,0 +1,26 @@
+# secrets and local config
+.env
+.env.*
+!.env.example
+# dependencies and build
+/vendor/
+composer.cloud.json
+composer.cloud.lock
+# runtime output
+/storage/*
+!/storage/.gitkeep
+*.log
+# data dumps and backups (never commit company data)
+*.sql.gz
+*.sql.gz.enc
+*.enc
+/backups/
+/database/dumps/
+# uploads
+/public/uploads/
+# OS/editor
+.DS_Store
+Thumbs.db
+.idea/
+.phpunit.cache/
+.phpunit.result.cache

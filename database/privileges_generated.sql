@@ -1,0 +1,34 @@
+-- privileges_generated.sql: per-table grants for the application account (generated from schema.sql).
+-- Create the account first (see privileges_template.sql). Replace host if not localhost.
+GRANT SELECT, INSERT, UPDATE, DELETE ON lubie_dashboard.roles TO 'lubie_app'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON lubie_dashboard.users TO 'lubie_app'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON lubie_dashboard.sessions TO 'lubie_app'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON lubie_dashboard.login_attempts TO 'lubie_app'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON lubie_dashboard.projects TO 'lubie_app'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON lubie_dashboard.project_assignments TO 'lubie_app'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON lubie_dashboard.activities TO 'lubie_app'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON lubie_dashboard.activity_dependencies TO 'lubie_app'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON lubie_dashboard.milestones TO 'lubie_app'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON lubie_dashboard.delay_reasons TO 'lubie_app'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON lubie_dashboard.progress_records TO 'lubie_app'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON lubie_dashboard.progress_photos TO 'lubie_app'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON lubie_dashboard.budgets TO 'lubie_app'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON lubie_dashboard.expenditure_categories TO 'lubie_app'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON lubie_dashboard.expenditures TO 'lubie_app'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON lubie_dashboard.payment_certificates TO 'lubie_app'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON lubie_dashboard.payment_transactions TO 'lubie_app'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON lubie_dashboard.resource_categories TO 'lubie_app'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON lubie_dashboard.resources TO 'lubie_app'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON lubie_dashboard.resource_usage TO 'lubie_app'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON lubie_dashboard.material_requests TO 'lubie_app'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON lubie_dashboard.alert_settings TO 'lubie_app'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON lubie_dashboard.threshold_proposals TO 'lubie_app'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON lubie_dashboard.notifications TO 'lubie_app'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON lubie_dashboard.notification_recipients TO 'lubie_app'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON lubie_dashboard.sms_log TO 'lubie_app'@'localhost';
+GRANT SELECT, INSERT ON lubie_dashboard.audit_logs TO 'lubie_app'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON lubie_dashboard.backup_log TO 'lubie_app'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON lubie_dashboard.system_settings TO 'lubie_app'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON lubie_dashboard.sync_requests TO 'lubie_app'@'localhost';
+GRANT SELECT ON lubie_dashboard.schema_migrations TO 'lubie_app'@'localhost';
+FLUSH PRIVILEGES;
