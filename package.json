@@ -1,0 +1,12 @@
+{
+  "name": "lubie-dashboard-tools",
+  "private": true,
+  "description": "Development tools only (JavaScript lint). The app itself needs no Node.js.",
+  "devDependencies": {
+    "eslint": "9.13.0",
+    "globals": "15.11.0"
+  },
+  "scripts": {
+    "lint": "eslint public/assets/js public/sw.js"
+  }
+}

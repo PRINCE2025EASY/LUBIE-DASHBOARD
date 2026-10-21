@@ -24,3 +24,6 @@ Thumbs.db
 .idea/
 .phpunit.cache/
 .phpunit.result.cache
+/node_modules/
+junit.xml
+package-lock.json

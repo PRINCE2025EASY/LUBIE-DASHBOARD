@@ -1,0 +1,98 @@
+# Continuous integration: runs on every push and pull request.
+# Matches the owner's XAMPP: PHP 8.2 and MariaDB 10.4.32. Uses throwaway CI-only secrets.
+name: CI
+
+on:
+  push:
+    branches: [main, iteration-1]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  php:
+    name: PHP 8.2 + MariaDB 10.4
+    runs-on: ubuntu-24.04
+    services:
+      mariadb:
+        image: mariadb:10.4.32
+        env:
+          MARIADB_ROOT_PASSWORD: ci-root-only
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -pci-root-only"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo_mysql, mbstring, openssl, zlib, dom, fileinfo, curl
+          coverage: pcov
+          tools: composer:v2
+
+      - name: Validate composer.json
+        run: composer validate --no-check-lock
+
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Security advisories (Composer packages)
+        run: composer audit --no-interaction
+
+      - name: PHP syntax
+        run: php bin/lint.php
+
+      - name: Test databases and least-privilege check
+        run: |
+          mysql -h 127.0.0.1 -uroot -pci-root-only -e "
+            CREATE DATABASE lubie_dashboard_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+            CREATE DATABASE lubie_restore_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+            CREATE USER 'lubie_test'@'%' IDENTIFIED BY 'ci-test-only';
+            GRANT ALL ON lubie_dashboard_test.* TO 'lubie_test'@'%';
+            GRANT ALL ON lubie_restore_test.* TO 'lubie_test'@'%';"
+          mysql -h 127.0.0.1 -uroot -pci-root-only -e "SELECT VERSION();"
+
+      - name: Write CI .env (random keys, never reused)
+        run: |
+          {
+            echo "APP_ENV=testing"
+            echo "APP_KEY=$(openssl rand -hex 32)"
+            echo "DB_HOST=127.0.0.1"
+            echo "DB_NAME=lubie_dashboard_test"
+            echo "DB_TEST_NAME=lubie_dashboard_test"
+            echo "DB_USER=lubie_test"
+            echo "DB_PASSWORD=ci-test-only"
+            echo "SMS_PROVIDER=sandbox"
+            echo "BACKUP_ENCRYPTION_KEY=$(openssl rand -hex 32)"
+            echo "BACKUP_TOKEN=$(openssl rand -hex 24)"
+          } > .env
+
+      - name: Build test database from schema and demo seed
+        run: php bin/console.php test-db:reset --yes
+
+      - name: Set-up check
+        run: php bin/console.php doctor
+
+      - name: PHPUnit
+        run: php -d pcov.enabled=1 vendor/bin/phpunit --coverage-text --log-junit junit.xml
+
+      - name: Keep test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit
+          path: junit.xml
+
+  javascript:
+    name: JavaScript lint
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-audit --no-fund
+      - run: npx eslint public/assets/js public/sw.js

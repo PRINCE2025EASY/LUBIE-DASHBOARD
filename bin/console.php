@@ -210,8 +210,14 @@ try {
             if (Env::get('DB_USER') === 'root') {
                 $say('WARN the app connects as root. Use the least-privilege lubie_app account (INSTALL_XAMPP.md step 4).');
             }
-            $db = Database::fromEnv();
-            $ver = (string) $db->value('SELECT VERSION()');
+            try {
+                $db = Database::fromEnv();
+                $ver = (string) $db->value('SELECT VERSION()');
+            } catch (\Throwable $e) {
+                $say('FIX database: ' . $e->getMessage());
+                $say('     Check that MySQL is running in the XAMPP Control Panel, the database exists, and DB_* in .env match the account you created.');
+                exit(1);
+            }
             $isMaria = stripos($ver, 'mariadb') !== false;
             $num = (string) preg_replace('/^(\d+\.\d+\.\d+).*/', '$1', $ver);
             $say($ok($isMaria ? version_compare($num, '10.4.0', '>=') : version_compare($num, '8.0.16', '>=')) . "Database server {$ver}");

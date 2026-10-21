@@ -1,5 +1,7 @@
 # Lubie Construction Works: Project Monitoring Dashboard
 
+![CI](https://github.com/PRINCE2025EASY/LUBIE-DASHBOARD/actions/workflows/ci.yml/badge.svg)
+
 MSc IT research prototype (University of Cape Coast). A mobile-first PHP and MySQL dashboard
 for one construction company: projects, activities, progress with Project Manager approval,
 cost-weighted KPIs and earned value, budgets, expenditure, valuations and payments, rule-based
@@ -28,6 +30,9 @@ financial detail. Only the Administrator sees the audit trail.
     composer install
     php bin/console.php test-db:reset --yes    # needs DB_TEST_NAME ending in _test
     vendor/bin/phpunit
+    npm install && npm run lint                # JavaScript lint (development only)
+
+GitHub Actions runs the same checks on PHP 8.2 with MariaDB 10.4.32 on every push.
 
 ## Documents
 
