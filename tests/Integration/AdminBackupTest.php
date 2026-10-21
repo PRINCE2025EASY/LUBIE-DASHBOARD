@@ -110,8 +110,10 @@ final class AdminBackupTest extends IntegrationTestCase
         $this->assertCount(3, $res['kpis']);
         // Every column comes back unchanged, including timestamps with default values (MySQL 8 marks them DEFAULT_GENERATED).
         foreach (['users', 'projects', 'expenditures', 'progress_records', 'budgets', 'notifications'] as $t) {
-            $src = self::$db->one("CHECKSUM TABLE `{$t}`")['Checksum'];
-            $dst = $target->one("CHECKSUM TABLE `{$t}`")['Checksum'];
+            // Compare the data itself; CHECKSUM TABLE also depends on the physical row format.
+            $src = self::$db->all("SELECT * FROM `{$t}` ORDER BY id");
+            $dst = $target->all("SELECT * FROM `{$t}` ORDER BY id");
+            $this->assertNotEmpty($src, "{$t} has rows to compare");
             $this->assertSame($src, $dst, "{$t} identical after restore");
         }
 

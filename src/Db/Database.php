@@ -86,6 +86,8 @@ final class Database
             try {
                 $this->pdo = new PDO($dsn, (string) $this->cfg['user'], (string) $this->cfg['pass'], $opts);
                 $this->pdo->exec("SET time_zone = '+00:00'");
+                // Same strict rules everywhere: XAMPP ships a non-strict sql_mode, managed MySQL a strict one.
+                $this->pdo->exec("SET SESSION sql_mode = 'STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION'");
                 return $this->pdo;
             } catch (PDOException $e) {
                 // Wrong user, password or database name: retrying will not help.

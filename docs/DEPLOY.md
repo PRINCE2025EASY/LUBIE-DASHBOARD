@@ -74,6 +74,35 @@ first Administrator now: `php bin/console.php setup:first-admin` (in a Shell wit
 5. On a phone: open the address in Chrome, menu > Install app. Switch on airplane mode,
    reopen: the app shell and the last data open, and progress entries queue.
 
+## 4b. Automated smoke test and pre-demo warm-up
+
+From the XAMPP Shell (read-only, no secrets):
+
+    php tools/verify_live.php https://<your address>
+
+It checks HTTPS redirect, HSTS, CSP, the secure session cookie, that .env, src, config, vendor,
+database and .git are not reachable, directory listing off, debug output off and anonymous API
+refusal. With a demo account it also checks login, polling and that the session survives a wait
+(restart the service in Render during the wait to test a restart):
+
+    set "LUBIE_CHECK_USER=pm1_demo"
+    set "LUBIE_CHECK_PASSWORD=<demo password from database/seed_demo.sql>"
+    php tools/verify_live.php https://<your address>
+
+Ten minutes before a demonstration or an evaluation session, wake the service:
+
+    php tools/verify_live.php https://<your address> --warm
+
+## 4c. Free-tier limits: what happens when they run out
+
+| Limit | What happens | What to do |
+|---|---|---|
+| Render: 750 free instance hours a month per workspace | All free services stop until the next month | One free service uses at most about 744 hours; do not run a second free service |
+| Render: included bandwidth and build minutes | Without a payment method, free services are suspended for the rest of the month | Avoid repeated deploys; the app transfers little data |
+| Render: 15 minutes without visitors | The service sleeps; next visit waits about a minute | Run the warm-up step before sessions |
+| Aiven free MySQL: 1 GB storage, 76 connections | Writes fail when storage is full | Demo data uses a few MB; watch Aiven > Metrics |
+| Aiven: idle service | Aiven may power it off after a notice e-mail | Power it on in the Aiven console; data are kept |
+
 ## 5. Backups
 
 - Aiven keeps its own backups of the free service.
