@@ -85,4 +85,14 @@ final class PermissionMatrixTest extends TestCase
             }
         }
     }
+
+    public function testEnvExampleHoldsNoSecrets(): void
+    {
+        $lines = file(dirname(__DIR__, 2) . '/.env.example', FILE_IGNORE_NEW_LINES) ?: [];
+        foreach ($lines as $line) {
+            if (preg_match('/^(APP_KEY|DB_PASSWORD|SMS_API_KEY|BACKUP_ENCRYPTION_KEY|BACKUP_TOKEN|DB_SSL_CA_PEM)=(.*)$/', trim($line), $m)) {
+                $this->assertSame('', trim($m[2]), "{$m[1]} must stay empty in .env.example");
+            }
+        }
+    }
 }
