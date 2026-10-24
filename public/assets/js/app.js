@@ -99,6 +99,12 @@ function setupNetwork() {
 
 async function registerSw() {
   if (!('serviceWorker' in navigator)) return;
+  // After a release the new service worker takes over; reload once so every file is the new version.
+  const hadController = !!navigator.serviceWorker.controller;
+  let reloaded = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (hadController && !reloaded && !document.querySelector('form.was-edited')) { reloaded = true; location.reload(); }
+  });
   try { await navigator.serviceWorker.register(base + '/sw.js', { scope: base + '/' }); } catch (e) { /* not available over plain http on LAN */ }
 }
 

@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="<?= $e($asset('vendor/bootstrap/bootstrap.min.css')) ?>">
 <link rel="stylesheet" href="<?= $e($asset('vendor/bootstrap-icons/bootstrap-icons.min.css')) ?>">
 <link rel="stylesheet" href="<?= $e($asset('css/app.css')) ?>">
+<link rel="stylesheet" href="<?= $e($asset('css/login.css')) ?>">
 <script src="<?= $e($asset('js/theme-init.js')) ?>"></script>
 </head>
 <body class="<?= $e($bodyClass ?? 'bg-body-tertiary') ?>">

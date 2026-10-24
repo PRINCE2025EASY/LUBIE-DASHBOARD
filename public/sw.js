@@ -1,10 +1,10 @@
 /* Service worker (FR-38): caches the app shell and the last copy of read-only API data so
    site staff can open their activities without a connection. Writes are never cached; they
    go through the encrypted outbox in the page. Versioned cache; old caches are deleted. */
-const VERSION = 'lubie-v0.6.0';
+const VERSION = 'lubie-v0.6.1';
 const SCOPE = new URL(self.registration.scope).pathname.replace(/\/$/, '');
 const SHELL = [
-  '/offline', '/assets/css/app.css', '/assets/js/main.js', '/assets/js/app.js', '/assets/js/theme-init.js', '/assets/js/public.js',
+  '/offline', '/assets/css/app.css', '/assets/css/login.css', '/assets/js/main.js', '/assets/js/app.js', '/assets/js/theme-init.js', '/assets/js/public.js',
   '/assets/js/lib/api.js', '/assets/js/lib/dom.js', '/assets/js/lib/outbox.js', '/assets/js/lib/drafts.js', '/assets/js/lib/poll.js', '/assets/js/lib/charts.js',
   '/assets/js/views/common.js', '/assets/js/views/site.js', '/assets/js/views/pm.js', '/assets/js/views/qs.js',
   '/assets/js/views/director.js', '/assets/js/views/client.js', '/assets/js/views/admin.js',
@@ -56,9 +56,13 @@ self.addEventListener('fetch', e => {
     return;
   }
   if (path.startsWith('/assets/') || path === '/manifest.webmanifest') {
-    e.respondWith(caches.match(req, { ignoreSearch: true }).then(hit => hit || fetch(req).then(res => {
-      if (res.ok) caches.open(VERSION).then(c => c.put(req, res.clone()));
+    // Exact match first (the ?v= version is part of the key), so a new release is never
+    // answered with an older cached file. Version-less match only when the network is down.
+    e.respondWith(caches.match(req).then(hit => hit || fetch(req).then(res => {
+      if (res.ok) { const copy = res.clone(); caches.open(VERSION).then(c => c.put(req, copy)); }
       return res;
-    })));
+    }).catch(() => caches.match(req, { ignoreSearch: true }).then(h => h || Response.error()))));
+    return;
   }
+
 });

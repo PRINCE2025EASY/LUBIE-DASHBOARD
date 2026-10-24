@@ -95,4 +95,12 @@ final class PermissionMatrixTest extends TestCase
             }
         }
     }
+
+    public function testServiceWorkerVersionFollowsAssetVersion(): void
+    {
+        $root = dirname(__DIR__, 2);
+        preg_match("/ASSET_VERSION = '([0-9.]+)'/", (string) file_get_contents($root . '/src/Views/View.php'), $a);
+        preg_match("/const VERSION = 'lubie-v([0-9.]+)'/", (string) file_get_contents($root . '/public/sw.js'), $b);
+        $this->assertSame($a[1], $b[1], 'Bump public/sw.js VERSION with every asset version, or browsers keep old files');
+    }
 }

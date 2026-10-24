@@ -7,8 +7,13 @@ Options -Indexes -MultiViews
     RewriteRule ^ index.php [QSA,L]
 </IfModule>
 <IfModule mod_headers.c>
-    <FilesMatch "\.(css|js|woff2|png|svg|webmanifest)$">
+    # Images and fonts change rarely. CSS and JS are revalidated on every load (a quick 304),
+    # because JavaScript modules are imported without a version query.
+    <FilesMatch "\.(woff2|png|jpg|webp|ico|svg)$">
         Header set Cache-Control "public, max-age=604800"
+    </FilesMatch>
+    <FilesMatch "\.(css|js|webmanifest)$">
+        Header set Cache-Control "no-cache"
     </FilesMatch>
     <FilesMatch "^sw\.js$">
         Header set Cache-Control "no-cache"
