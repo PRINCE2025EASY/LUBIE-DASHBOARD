@@ -18,6 +18,8 @@ declare(strict_types=1);
  *   setup:app-account --owner=root [--user=lubie_app] [--host=localhost] [--require-ssl]
  *                           Uses the database OWNER account (password asked): create the least-privilege app account with
  *                           per-table grants (audit_logs append-only). Prompts for the new password.
+ *   demo:install --owner=root  LOCAL XAMPP only: (re)build database lubie_dashboard with the presentation
+ *                           data (database/seed_lubie.sql), create lubie_app and point .env at it.
  *   doctor                  Read-only check of PHP, extensions, .env, database and schema. Shows no secrets.
  *
  * Secrets are never passed on the command line; they come from .env or the host settings.
@@ -194,6 +196,88 @@ try {
         case 'sms:retry':
             lubie_container()->get(SmsDispatcher::class)->retryDue();
             $say('SMS retry pass finished.');
+            break;
+
+        case 'demo:install':
+            if (Env::get('APP_ENV') === 'production') {
+                $fail('demo:install is for a local XAMPP demonstration only.');
+            }
+            $owner = $opt('owner');
+            if ($owner === null || $owner === '1') {
+                $fail('Give the XAMPP owner account: --owner=root');
+            }
+            $seedFile = $root . '/database/seed_lubie.sql';
+            if (!is_file($seedFile)) {
+                $fail('database/seed_lubie.sql is missing.');
+            }
+            $dbName = 'lubie_dashboard';
+            $ownerPw = lubie_prompt("Password of {$owner} on this computer (XAMPP default: press Enter)", true);
+            try {
+                $raw = new PDO('mysql:host=127.0.0.1;port=3306;charset=utf8mb4', $owner, $ownerPw, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+            } catch (PDOException $e) {
+                $fail('Cannot connect to the local MySQL/MariaDB as ' . $owner . '. Start MySQL in the XAMPP Control Panel. (' . $e->getMessage() . ')');
+            }
+            $say('Local server: ' . $raw->query('SELECT VERSION()')->fetchColumn());
+            $raw->exec("CREATE DATABASE IF NOT EXISTS `{$dbName}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+            $existing = (int) $raw->query("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '{$dbName}'")->fetchColumn();
+            if ($existing > 0 && lubie_prompt("Database {$dbName} has {$existing} tables. Type RESET to delete its data and load the presentation data") !== 'RESET') {
+                $fail('Nothing was changed.');
+            }
+            $demoPw = lubie_prompt('Choose ONE password for all presentation accounts (10+ characters, letters and digits)', true);
+            if (strlen($demoPw) < 10 || !preg_match('/[A-Za-z]/', $demoPw) || !preg_match('/\d/', $demoPw) || $demoPw !== lubie_prompt('Repeat it', true)) {
+                $fail('Passwords must match, have 10 or more characters, and contain letters and digits.');
+            }
+            $db = new Database(['host' => '127.0.0.1', 'port' => 3306, 'name' => $dbName, 'user' => $owner, 'pass' => $ownerPw, 'ssl_ca' => null, 'ssl_verify' => false, 'retries' => 1]);
+            $pdo = $db->pdo();
+            $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');
+            foreach (array_column($db->all('SELECT table_name AS t FROM information_schema.tables WHERE table_schema = DATABASE()'), 't') as $t) {
+                $pdo->exec('DROP TABLE `' . str_replace('`', '', (string) $t) . '`');
+            }
+            $pdo->exec('SET FOREIGN_KEY_CHECKS = 1');
+            SqlScript::runFile($db, $root . '/database/schema.sql');
+            SqlScript::runFile($db, $root . '/database/seed_production.sql');
+            $hash = password_hash($demoPw, PASSWORD_DEFAULT, AuthService::HASH_OPTIONS);
+            $tmp = tempnam(sys_get_temp_dir(), 'lubie');
+            file_put_contents($tmp, str_replace('<<PASSWORD_HASH>>', $hash, (string) file_get_contents($seedFile)));
+            try {
+                SqlScript::runFile($db, $tmp);
+            } finally {
+                @unlink($tmp);
+            }
+            // App account with a new random password that only .env knows.
+            $appPw = bin2hex(random_bytes(16));
+            $acct = "'lubie_app'@'localhost'";
+            $pdo->exec("CREATE USER IF NOT EXISTS {$acct} IDENTIFIED BY " . $pdo->quote($appPw));
+            $pdo->exec("ALTER USER {$acct} IDENTIFIED BY " . $pdo->quote($appPw));
+            foreach (array_column($db->all("SELECT table_name AS t FROM information_schema.tables WHERE table_schema = DATABASE() AND table_type = 'BASE TABLE'"), 't') as $t) {
+                $privs = match ((string) $t) { 'audit_logs' => 'SELECT, INSERT', 'schema_migrations' => 'SELECT', default => 'SELECT, INSERT, UPDATE, DELETE' };
+                $pdo->exec("GRANT {$privs} ON `{$dbName}`.`{$t}` TO {$acct}");
+            }
+            // Point .env at the local database; keep a copy of the previous file.
+            $envFile = $root . '/.env';
+            $env = is_file($envFile) ? (string) file_get_contents($envFile) : (string) file_get_contents($root . '/.env.example');
+            if (is_file($envFile)) {
+                copy($envFile, $root . '/.env.before-demo');
+            }
+            $set = ['DB_HOST' => '127.0.0.1', 'DB_PORT' => '3306', 'DB_NAME' => $dbName, 'DB_USER' => 'lubie_app', 'DB_PASSWORD' => $appPw, 'DB_SSL_CA' => '', 'DB_SSL_CA_PEM' => '',
+                'APP_BASE_PATH' => '/lubie-dashboard', 'SESSION_SECURE_COOKIE' => '0'];
+            if (!preg_match('/^APP_KEY=.{32,}/m', $env)) {
+                $set['APP_KEY'] = bin2hex(random_bytes(32));
+            }
+            if (!preg_match('/^BACKUP_ENCRYPTION_KEY=.{32,}/m', $env)) {
+                $set['BACKUP_ENCRYPTION_KEY'] = bin2hex(random_bytes(32));
+            }
+            $eol = str_contains($env, "\r\n") ? "\r\n" : "\n";
+            foreach ($set as $k => $v) {
+                $line = $k . '=' . $v;
+                $env = preg_match('/^' . $k . '=.*$/m', $env) ? (string) preg_replace('/^' . $k . '=[^\r\n]*/m', str_replace('$', '\\$', $line), $env) : rtrim($env) . $eol . $line . $eol;
+            }
+            file_put_contents($envFile, $env);
+            $say('');
+            $say('Presentation data loaded into ' . $dbName . ' (3 projects, 13 accounts). .env now points to this local database;');
+            $say('the previous .env is saved as .env.before-demo.');
+            $say('Accounts (all use the password you chose): admin, director, pm1, pm2, qs1, qs2, se1, se2, se3, client1, client2, client3 (se4 is deactivated).');
+            $say('Open http://localhost/lubie-dashboard');
             break;
 
         case 'setup:app-account':

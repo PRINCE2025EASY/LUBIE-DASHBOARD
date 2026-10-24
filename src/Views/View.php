@@ -13,7 +13,7 @@ use Throwable;
 final class View
 {
     private string $dir;
-    private const ASSET_VERSION = '0.3.0';
+    private const ASSET_VERSION = '0.6.0';
 
     public function __construct(private Container $c)
     {

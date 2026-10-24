@@ -144,4 +144,15 @@ final class AuthSecurityTest extends IntegrationTestCase
         $this->assertNotContains('password_hash', self::allKeys($users['json']));
         $this->assertStringStartsWith('$2y$12$', (string) $this->value("SELECT password_hash FROM users WHERE username = 'pm1_demo'"));
     }
+
+    public function testLoginPageUsesCompanyBranding(): void
+    {
+        $r = $this->client()->get('/login');
+        $this->assertStringContainsString('class="login-page"', $r['body']);
+        $this->assertStringContainsString('img/company-logo.png', $r['body']);
+        $this->assertStringContainsString('img/favicon.ico', $r['body']);
+        foreach (['company-logo.png', 'favicon.ico', 'login-bg.jpg', 'login-bg.webp', 'icon-192.png', 'icon-512.png'] as $f) {
+            $this->assertFileExists(dirname(__DIR__, 2) . '/public/assets/img/' . $f);
+        }
+    }
 }

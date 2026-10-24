@@ -27,3 +27,6 @@ Thumbs.db
 /node_modules/
 junit.xml
 package-lock.json
+# local presentation data with personal details (never commit)
+/database/seed_lubie.sql
+/refactor/

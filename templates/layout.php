@@ -13,7 +13,7 @@ $theme = $user?->theme ?? 'system';
 <meta name="chart-src" content="<?= $e($asset('vendor/chartjs/chart.umd.min.js')) ?>">
 <title><?= $e($title ?? 'Dashboard') ?> · Lubie Project Monitoring</title>
 <link rel="manifest" href="<?= $e($url('/manifest.webmanifest')) ?>">
-<link rel="icon" href="<?= $e($url('/assets/icon.svg')) ?>" type="image/svg+xml">
+<?php require __DIR__ . '/partials/icons.php'; ?>
 <link rel="stylesheet" href="<?= $e($asset('vendor/bootstrap/bootstrap.min.css')) ?>">
 <link rel="stylesheet" href="<?= $e($asset('vendor/bootstrap-icons/bootstrap-icons.min.css')) ?>">
 <link rel="stylesheet" href="<?= $e($asset('css/app.css')) ?>">
@@ -26,7 +26,7 @@ $theme = $user?->theme ?? 'system';
 <a class="visually-hidden-focusable" href="#main">Skip to content</a>
 <nav class="navbar navbar-expand bg-body border-bottom sticky-top app-nav">
   <div class="container-fluid">
-    <a class="navbar-brand fw-semibold" href="<?= $e($url('/')) ?>"><i class="bi bi-cone-striped" aria-hidden="true"></i> Lubie</a>
+    <a class="navbar-brand fw-semibold d-flex align-items-center gap-2" href="<?= $e($url('/')) ?>"><img src="<?= $e($asset('img/company-logo.png')) ?>" alt="" class="nav-logo" width="40" height="34"> Lubie</a>
     <span class="navbar-text small d-none d-sm-inline text-truncate"><?= $e($user?->fullName ?? '') ?> · <?= $e($title ?? '') ?></span>
     <div class="ms-auto d-flex align-items-center gap-1">
       <span id="net-status" class="badge text-bg-secondary d-none" role="status"></span>
@@ -55,6 +55,6 @@ $theme = $user?->theme ?? 'system';
 </div>
 <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toasts" aria-live="polite"></div>
 <script defer src="<?= $e($asset('vendor/bootstrap/bootstrap.bundle.min.js')) ?>"></script>
-<script type="module" src="<?= $e($asset('js/app.js')) ?>"></script>
+<script type="module" src="<?= $e($asset('js/main.js')) ?>"></script>
 </body>
 </html>

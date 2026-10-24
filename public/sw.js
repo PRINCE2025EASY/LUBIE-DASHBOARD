@@ -1,16 +1,16 @@
 /* Service worker (FR-38): caches the app shell and the last copy of read-only API data so
    site staff can open their activities without a connection. Writes are never cached; they
    go through the encrypted outbox in the page. Versioned cache; old caches are deleted. */
-const VERSION = 'lubie-v0.3.0';
+const VERSION = 'lubie-v0.6.0';
 const SCOPE = new URL(self.registration.scope).pathname.replace(/\/$/, '');
 const SHELL = [
-  '/offline', '/assets/css/app.css', '/assets/js/app.js', '/assets/js/theme-init.js', '/assets/js/public.js',
+  '/offline', '/assets/css/app.css', '/assets/js/main.js', '/assets/js/app.js', '/assets/js/theme-init.js', '/assets/js/public.js',
   '/assets/js/lib/api.js', '/assets/js/lib/dom.js', '/assets/js/lib/outbox.js', '/assets/js/lib/drafts.js', '/assets/js/lib/poll.js', '/assets/js/lib/charts.js',
   '/assets/js/views/common.js', '/assets/js/views/site.js', '/assets/js/views/pm.js', '/assets/js/views/qs.js',
   '/assets/js/views/director.js', '/assets/js/views/client.js', '/assets/js/views/admin.js',
   '/assets/vendor/bootstrap/bootstrap.min.css', '/assets/vendor/bootstrap/bootstrap.bundle.min.js',
   '/assets/vendor/bootstrap-icons/bootstrap-icons.min.css', '/assets/vendor/bootstrap-icons/fonts/bootstrap-icons.woff2',
-  '/assets/vendor/chartjs/chart.umd.min.js', '/assets/icon.svg', '/manifest.webmanifest',
+  '/assets/vendor/chartjs/chart.umd.min.js', '/assets/img/company-logo.png', '/assets/img/favicon.ico', '/assets/img/icon-192.png', '/manifest.webmanifest',
 ].map(p => SCOPE + p);
 const NO_CACHE_API = ['/api/v1/changes', '/api/v1/auth/', '/api/v1/reports', '/api/v1/admin', '/api/v1/audit', '/api/v1/backup', '/api/v1/users', '/api/v1/settings'];
 

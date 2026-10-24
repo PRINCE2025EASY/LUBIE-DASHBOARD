@@ -70,7 +70,7 @@ export async function projectOverview(app, id, { tabsFor } = {}) {
   app.append(pageHeader(`${d.project.code} ${d.project.name}`, badge(statusTone(d.project.status), statusLabel(d.project.status))));
   if (tabsFor) app.append(tabsFor(id, 'overview'));
   app.append(lastUpdated(d.last_updated, null), h('p', { class: 'small text-body-secondary checked-at' }, 'Checked ' + fmtDateTime(d.checked_at)));
-  if (d.project.is_demo) app.append(h('div', { class: 'alert alert-secondary py-1 small' }, 'Demonstration data only. Not a real project.'));
+  if (d.project.is_demo) app.append(h('div', { class: 'alert alert-secondary py-1 small' }, 'Demonstration figures: schedules, amounts and progress are illustrative.'));
   const tone = (v, warn = 0.9) => v === null || v === undefined ? null : (v < warn ? 'warning' : 'ok');
   const kpis = h('div', { class: 'row g-2 mb-3' },
     kpiCard('Complete', fmtPct(k.completion_pct), FORMULAS.completion + (k.weighting === 'duration' ? ' No activity costs: weighted by duration.' : '')),

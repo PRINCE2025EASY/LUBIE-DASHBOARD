@@ -36,6 +36,7 @@ final class AuthController extends BaseController
         Csrf::token($ctx->session);
         return Response::html($this->c->get(View::class)->render('pages/login', [
             'title' => 'Log in', 'expired' => $r->queryParam('expired') === '1', 'next' => (string) $r->queryParam('next', ''),
+            'bodyClass' => 'login-page', 'mainClass' => 'login-main',
         ], 'layout_public'));
     }
 
