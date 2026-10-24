@@ -30,3 +30,6 @@ package-lock.json
 # local presentation data with personal details (never commit)
 /database/seed_lubie.sql
 /refactor/
+/refactor.zip
+/public/assets/Company_logo.jpg
+/test-aiven.php
