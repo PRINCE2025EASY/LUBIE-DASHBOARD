@@ -8,7 +8,7 @@ use Lubie\Http\HttpException;
 use Lubie\Support\Money;
 
 /**
- * Server-side validation (authoritative; browser checks are only hints).
+ * Server-side validation.
  * Collects field messages in plain language and throws one 422 at the end.
  */
 final class Validator
@@ -75,7 +75,7 @@ final class Validator
         return $this;
     }
 
-    /** Decimal with up to two places, stored as hundredths (e.g. 85.5 % -> 8550). */
+    
     public function percent(string $f, bool $required = true): self
     {
         if ($this->missing($f)) {

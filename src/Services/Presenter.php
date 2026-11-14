@@ -8,7 +8,7 @@ use Lubie\Domain\KpiResult;
 use Lubie\Support\Money;
 
 /**
- * DTOs with field-level filtering by role (Design Specification s6). This is the only
+ * This is the only
  * place that decides which fields leave the server. Site engineers never receive cost
  * fields; clients receive only their summary. Hidden fields are omitted, not blanked.
  */

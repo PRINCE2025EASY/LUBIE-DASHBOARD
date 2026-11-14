@@ -11,10 +11,6 @@ use ReflectionClass;
 use ReflectionNamedType;
 use RuntimeException;
 
-/**
- * Small dependency-injection container: explicit factories for infrastructure,
- * constructor autowiring for application classes (one shared instance per request).
- */
 final class Container
 {
     /** @var array<string, object> */

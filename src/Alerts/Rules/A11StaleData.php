@@ -11,7 +11,6 @@ use Lubie\Domain\KpiResult;
 use Lubie\Domain\ProjectSnapshot;
 use Lubie\Services\KpiService;
 
-/** A11: no approved progress for d days (default 7) on a started project. */
 final class A11StaleData implements AlertRule
 {
     public function evaluate(ProjectSnapshot $s, KpiResult $k, Thresholds $t, string $today): array

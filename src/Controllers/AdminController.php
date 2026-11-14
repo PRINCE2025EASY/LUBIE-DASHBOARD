@@ -16,7 +16,7 @@ use Lubie\Services\BackupService;
 use Lubie\Services\UserService;
 use Lubie\Sms\SmsGateway;
 
-/** Administrator functions: users, settings, audit, backups (FR-05, FR-25, FR-36). */
+/** Administrator functions*/
 final class AdminController extends BaseController
 {
     private const EDITABLE = ['refresh_interval_seconds', 'session_idle_minutes', 'lockout_threshold', 'lockout_minutes', 'password_min_length',
@@ -113,7 +113,7 @@ final class AdminController extends BaseController
         }, 'application/octet-stream', $b['file'])->withHeader('X-Backup-SHA256', $b['sha256']);
     }
 
-    /** External scheduler endpoint: Bearer token, no session, no CSRF (nothing a browser can trigger). */
+    /** External scheduler endpoint */
     public function scheduledBackup(Request $r): Response
     {
         $svc = $this->c->get(BackupService::class);

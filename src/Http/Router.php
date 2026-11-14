@@ -4,12 +4,7 @@ declare(strict_types=1);
 
 namespace Lubie\Http;
 
-/**
- * Minimal router. Each route declares a permission (deny by default):
- *   'public'  no login needed
- *   'auth'    any logged-in user
- *   'perm:x'  user's role must hold permission x (config/permissions.php)
- */
+
 final class Router
 {
     /** @var list<array{method:string, pattern:string, regex:string, names:list<string>, handler:array{0:class-string,1:string}, guard:string}> */

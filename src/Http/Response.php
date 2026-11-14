@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Lubie\Http;
 
-/** HTTP response. Body is a string, or a callable that streams output (exports, backups). */
 final class Response
 {
     /** @var array<string, string> */

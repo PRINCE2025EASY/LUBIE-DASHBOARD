@@ -11,7 +11,7 @@ use Lubie\Domain\KpiResult;
 use Lubie\Domain\ProjectSnapshot;
 use Lubie\Support\Money;
 
-/** A12: budget revision waiting for Director approval. */
+/** Budget revision waiting for Director approval. */
 final class A12BudgetRevisionPending implements AlertRule
 {
     public function evaluate(ProjectSnapshot $s, KpiResult $k, Thresholds $t, string $today): array

@@ -8,11 +8,6 @@ use Lubie\Db\Database;
 use Lubie\Repositories\SettingsRepository;
 use Lubie\Support\Clock;
 
-/**
- * Sends one SMS per alert recipient within the per-user daily cap and optional monthly
- * company cap. Synchronous with a short timeout (no worker on free hosts); failures are
- * retried on the next alert evaluation, up to 3 attempts.
- */
 final class SmsDispatcher
 {
     public function __construct(private Database $db, private SettingsRepository $settings, private Clock $clock, private SmsGateway $gateway)

@@ -17,8 +17,8 @@ use Lubie\Support\Money;
 use Lubie\Validation\Validator;
 
 /**
- * Activities and milestones (FR-08, FR-13). PM and site engineers edit activities on
- * assigned projects; only the PM sets budgeted cost and milestones (decision 21/10/2026).
+ * Activities and milestones. PM and site engineers edit activities on
+ * assigned projects; only the PM sets budgeted cost and milestones.
  */
 final class ScheduleService
 {

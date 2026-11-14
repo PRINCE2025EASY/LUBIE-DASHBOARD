@@ -11,7 +11,7 @@ use Lubie\Security\AuthUser;
 use Lubie\Security\DbSessionHandler;
 use Lubie\Validation\Validator;
 
-/** User administration (FR-05). No self-registration. */
+/** User administration: No self-registration. */
 final class UserService
 {
     public function __construct(private UserRepository $users, private AuthService $auth, private AuditLogger $audit, private DbSessionHandler $sessions)

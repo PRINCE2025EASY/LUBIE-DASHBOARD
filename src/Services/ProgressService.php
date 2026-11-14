@@ -16,8 +16,8 @@ use Lubie\Support\Clock;
 use Lubie\Validation\Validator;
 
 /**
- * Progress entry and PM approval (FR-09, FR-30, FR-32). Only approved records count in
- * KPIs. A client_uuid makes offline replays idempotent (FR-38).
+ * Progress entry and PM approval. Only approved records count in
+ * KPIs. A client_uuid makes offline replays idempotent.
  */
 final class ProgressService
 {

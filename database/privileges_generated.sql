@@ -1,5 +1,3 @@
--- privileges_generated.sql: per-table grants for the application account (generated from schema.sql).
--- Create the account first (see privileges_template.sql). Replace host if not localhost.
 GRANT SELECT, INSERT, UPDATE, DELETE ON lubie_dashboard.roles TO 'lubie_app'@'localhost';
 GRANT SELECT, INSERT, UPDATE, DELETE ON lubie_dashboard.users TO 'lubie_app'@'localhost';
 GRANT SELECT, INSERT, UPDATE, DELETE ON lubie_dashboard.sessions TO 'lubie_app'@'localhost';

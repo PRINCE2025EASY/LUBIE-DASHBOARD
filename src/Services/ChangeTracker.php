@@ -7,7 +7,7 @@ namespace Lubie\Services;
 use Lubie\Db\Database;
 use Lubie\Support\Clock;
 
-/** Updates projects.last_change_at so polling clients know data changed (FR-24). */
+/** Updates projects.last_change_at */
 final class ChangeTracker
 {
     public function __construct(private Database $db, private Clock $clock)

@@ -64,7 +64,7 @@ final class DashboardController extends BaseController
             'units' => ['bag', 't', 'm3', 'm2', 'm', 'pcs', 'kg', 'litre', 'trip', 'hr', 'persons'],
             'project_statuses' => ['planning', 'active', 'on_hold', 'completed', 'archived'],
         ];
-        // Cost lists only for roles that handle cost (need to know).
+       
         if ($this->c->get(\Lubie\Security\Authorizer::class)->can($this->user(), 'cost.view')) {
             $out['expenditure_categories'] = $this->c->get(CostRepository::class)->categories();
         }

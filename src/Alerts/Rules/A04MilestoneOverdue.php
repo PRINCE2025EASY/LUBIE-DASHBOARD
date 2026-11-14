@@ -11,7 +11,7 @@ use Lubie\Domain\KpiResult;
 use Lubie\Domain\ProjectSnapshot;
 use Lubie\Support\Dates;
 
-/** A4: milestone not achieved after its due date. Client gets an in-app notice (no SMS). */
+
 final class A04MilestoneOverdue implements AlertRule
 {
     public function evaluate(ProjectSnapshot $s, KpiResult $k, Thresholds $t, string $today): array

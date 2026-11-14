@@ -1,6 +1,5 @@
-// Offline outbox (FR-38): entries are encrypted with AES-GCM and stored in IndexedDB until
-// they are sent to /api/v1/sync. The key comes from the server for this user (HMAC of APP_KEY),
-// is kept in sessionStorage for this tab, and is cleared at logout together with the outbox.
+// Offline outbox: entries are encrypted with AES-GCM and stored in IndexedDB until
+// they are sent to /api/v1/sync. 
 import { post } from './api.js';
 
 const DB = 'lubie-outbox', STORE = 'items';

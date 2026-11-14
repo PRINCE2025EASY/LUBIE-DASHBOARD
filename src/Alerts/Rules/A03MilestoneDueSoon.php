@@ -12,7 +12,6 @@ use Lubie\Domain\ProjectSnapshot;
 use Lubie\Support\Dates;
 use Lubie\Services\KpiService;
 
-/** A3: milestone not achieved and due within n days (default 7). */
 final class A03MilestoneDueSoon implements AlertRule
 {
     public function evaluate(ProjectSnapshot $s, KpiResult $k, Thresholds $t, string $today): array

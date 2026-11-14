@@ -10,7 +10,7 @@ use Lubie\Http\HttpException;
 use Lubie\Security\AuthUser;
 use Lubie\Support\Clock;
 
-/** The current user's alert panel: list, read, acknowledge (FR-20). Clients see only client-safe notices. */
+/** The current user's alert panel: list, read, acknowledge. Clients see only client-safe notices. */
 final class AlertQueryService
 {
     public function __construct(private Database $db, private AuditLogger $audit, private Clock $clock)

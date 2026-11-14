@@ -10,7 +10,7 @@ use Lubie\Alerts\Thresholds;
 use Lubie\Domain\KpiResult;
 use Lubie\Domain\ProjectSnapshot;
 
-/** A13: progress entries awaiting PM approval (one alert per project). */
+/** Progress entries awaiting PM approval (one alert per project). */
 final class A13ProgressAwaitingApproval implements AlertRule
 {
     public function evaluate(ProjectSnapshot $s, KpiResult $k, Thresholds $t, string $today): array

@@ -11,10 +11,6 @@ use Lubie\Domain\KpiResult;
 use Lubie\Domain\ProjectSnapshot;
 use Lubie\Support\Dates;
 
-/**
- * A15: work stoppage or safety incident selected as delay reason. Stays open until a later
- * approved progress entry on the same activity shows work has resumed. Not a safety module.
- */
 final class A15StoppageReported implements AlertRule
 {
     public function evaluate(ProjectSnapshot $s, KpiResult $k, Thresholds $t, string $today): array

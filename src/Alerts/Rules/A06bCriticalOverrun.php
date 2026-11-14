@@ -10,7 +10,6 @@ use Lubie\Alerts\Thresholds;
 use Lubie\Domain\KpiResult;
 use Lubie\Domain\ProjectSnapshot;
 
-/** A6b: AC above budget by more than y % (default 10, Director's SMS rule). */
 final class A06bCriticalOverrun implements AlertRule
 {
     public function evaluate(ProjectSnapshot $s, KpiResult $k, Thresholds $t, string $today): array

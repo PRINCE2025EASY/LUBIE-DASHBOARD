@@ -14,8 +14,8 @@ use Lubie\Support\Clock;
 use Lubie\Support\Money;
 
 /**
- * Dashboards (FR-23, FR-24, FR-27, FR-35). Same KpiService as reports and alerts.
- * Triggers the once-a-day alert evaluation (no cron on free hosts).
+ * Dashboards. Same KpiService as reports and alerts.
+ * Triggers the once-a-day alert evaluation.
  */
 final class DashboardService
 {

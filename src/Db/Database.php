@@ -9,10 +9,7 @@ use PDO;
 use PDOException;
 use PDOStatement;
 
-/**
- * Thin PDO wrapper: prepared statements only, retry while a sleeping cloud DB wakes,
- * optional TLS, nested-safe transactions. All SQL lives in repositories.
- */
+
 final class Database
 {
     private ?PDO $pdo = null;
@@ -23,7 +20,7 @@ final class Database
     {
     }
 
-    /** Same settings as fromEnv() but another account (owner tasks in bin/console.php). */
+    
     public static function fromEnvAs(string $user, string $password): self
     {
         $cfg = self::fromEnv()->cfg;
@@ -46,10 +43,6 @@ final class Database
         ]);
     }
 
-    /**
-     * Hosts without a file system for secrets (Render) pass the provider's CA certificate as
-     * text in DB_SSL_CA_PEM. It is written once to the temp folder; it is public, not secret.
-     */
     private static function caFromEnv(): ?string
     {
         $pem = Env::get('DB_SSL_CA_PEM');
@@ -86,11 +79,12 @@ final class Database
             try {
                 $this->pdo = new PDO($dsn, (string) $this->cfg['user'], (string) $this->cfg['pass'], $opts);
                 $this->pdo->exec("SET time_zone = '+00:00'");
-                // Same strict rules everywhere: XAMPP ships a non-strict sql_mode, managed MySQL a strict one.
+
+                // Same strict rules everywhere
                 $this->pdo->exec("SET SESSION sql_mode = 'STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION'");
                 return $this->pdo;
             } catch (PDOException $e) {
-                // Wrong user, password or database name: retrying will not help.
+                
                 if (in_array((int) ($e->errorInfo[1] ?? 0), [1044, 1045, 1049], true) || preg_match('/\[(1044|1045|1049)\]/', $e->getMessage())) {
                     throw new DatabaseUnavailable('The database refused the connection settings. Check DB_NAME, DB_USER and DB_PASSWORD in .env.', 0, $e);
                 }

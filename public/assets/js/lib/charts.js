@@ -3,7 +3,7 @@
 const charts = new WeakMap();
 const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 
-// Chart.js (about 200 KB) loads only when a chart is first drawn, not on every page.
+// Chart.js (about 200 KB) loads only when a chart is first drawn.
 let loading = null;
 function loadChart() {
   if (window.Chart) return Promise.resolve();

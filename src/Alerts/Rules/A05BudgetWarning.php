@@ -10,7 +10,6 @@ use Lubie\Alerts\Thresholds;
 use Lubie\Domain\KpiResult;
 use Lubie\Domain\ProjectSnapshot;
 
-/** A5: AC at or above x % of the current budget (default 80). Escalates to A6 above 100 %. */
 final class A05BudgetWarning implements AlertRule
 {
     public function evaluate(ProjectSnapshot $s, KpiResult $k, Thresholds $t, string $today): array

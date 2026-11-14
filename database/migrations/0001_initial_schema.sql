@@ -1,25 +1,12 @@
--- =====================================================================
--- Lubie Construction Works - Project Monitoring Dashboard
--- schema.sql  version 0.2.0  (Stage 2 design baseline, 21/10/2026)
--- Target: MariaDB 10.4+ (XAMPP) and MySQL 8.0.16+ (production).
--- Conventions: utf8mb4; money DECIMAL(15,2) GH₵; percentages DECIMAL(5,2);
--- dates stored ISO (DATE); timestamps DATETIME in Africa/Accra (= UTC, no DST).
--- Requirement IDs in comments refer to docs/stage1/05_Master_Requirements.md.
--- Matches docs/diagrams/01-database-erd.drawio (generated from this file).
--- =====================================================================
-
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
--- ---------------------------------------------------------------------
--- 1. Identity, access and sessions (FR-01 to FR-05, FR-29, NFR-01)
--- ---------------------------------------------------------------------
 
 CREATE TABLE roles (
   id            TINYINT UNSIGNED NOT NULL,
-  code          VARCHAR(20)  NOT NULL,          -- admin, director, pm, qs, site, client
+  code          VARCHAR(20)  NOT NULL,         
   name          VARCHAR(60)  NOT NULL,
-  dashboard_path VARCHAR(30) NOT NULL,          -- /admin, /director, /pm, /qs, /site, /client
+  dashboard_path VARCHAR(30) NOT NULL,          
   PRIMARY KEY (id),
   UNIQUE KEY uq_roles_code (code)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -37,7 +24,7 @@ CREATE TABLE users (
   failed_login_count   SMALLINT UNSIGNED NOT NULL DEFAULT 0,
   locked_until         DATETIME     NULL,
   last_login_at        DATETIME     NULL,
-  theme_pref           ENUM('light','dark','system') NOT NULL DEFAULT 'system',  -- FR-41
+  theme_pref           ENUM('light','dark','system') NOT NULL DEFAULT 'system',  
   sms_opt_in           TINYINT(1)   NOT NULL DEFAULT 1,
   created_by           INT UNSIGNED NULL,
   created_at           DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -50,7 +37,7 @@ CREATE TABLE users (
   CONSTRAINT ck_users_phone   CHECK (phone_e164 IS NULL OR phone_e164 LIKE '+233%')
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Database session store (stateless web tier, NFR-11)
+-- Database session store 
 CREATE TABLE sessions (
   id            VARCHAR(128) NOT NULL,
   user_id       INT UNSIGNED NULL,

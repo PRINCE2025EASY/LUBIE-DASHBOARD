@@ -12,16 +12,11 @@ use Lubie\Support\Clock;
 use Lubie\Support\Env;
 use RuntimeException;
 
-/**
- * Daily full logical backup (FR-36, NFR-06): SQL dump -> gzip -> AES-256-GCM, streamed to
- * the caller (Administrator download or external scheduler). Nothing is kept on the web
- * server's disk. restoreVerify() imports into a separate database and compares row counts
- * and KPI values with the figures embedded in the backup.
- */
+
 final class BackupService
 {
     private const MAGIC = 'LUBIEBK1';
-    /** Structure only, no rows. */
+   
     private const SKIP_TABLES = ['sessions'];
 
     public function __construct(private Database $db, private AuditLogger $audit, private Clock $clock, private ProjectSnapshotRepository $snaps, private KpiService $kpi)
@@ -55,7 +50,7 @@ final class BackupService
         }
     }
 
-    /** Token check for the external scheduler (constant-time; at most one run per 10 minutes). */
+   
     public function authoriseScheduler(?string $authHeader): void
     {
         $expected = Env::get('BACKUP_TOKEN');

@@ -15,7 +15,7 @@ use Lubie\Services\AuthService;
 use Lubie\Support\Env;
 use Lubie\Views\View;
 
-/** Unified login, logout, password change, central role redirect (FR-01, FR-02, FR-29). */
+/** Unified login, logout, password change, central role redirect */
 final class AuthController extends BaseController
 {
     public function home(Request $r): Response
@@ -78,12 +78,7 @@ final class AuthController extends BaseController
             'outbox_key' => $offline && $authz->can($u, 'sync.submit') ? self::outboxKey($u->id) : null]);
     }
 
-    /**
-     * Per-user key for the encrypted offline outbox (IndexedDB, AES-GCM). Derived from APP_KEY,
-     * so it is stable across sessions (queued items survive a re-login) and differs per user.
-     * Sent only over the authenticated session; never stored by the server.
-     */
-    private static function outboxKey(int $userId): ?string
+        private static function outboxKey(int $userId): ?string
     {
         $appKey = Env::get('APP_KEY', '');
         if ($appKey === '' || $appKey === null) {

@@ -1,6 +1,5 @@
-/* Login page only. A separate file (new URL) so a browser or service worker that still
-   holds an older app.css cannot show the login form stretched across the page. */
-/* Company photo behind the page; the form sits centred on a frosted card. */
+
+/* Company photo behind the page. */
 .login-page {
   min-height: 100vh;
   min-height: 100dvh;

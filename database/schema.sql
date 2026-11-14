@@ -1,19 +1,12 @@
--- =====================================================================
--- Lubie Construction Works - Project Monitoring Dashboard
--- schema.sql  version 0.3.0  (Stage 3 Iteration 1, 21/10/2026)
--- Target: MariaDB 10.4+ (XAMPP) and MySQL 8.0.16+ (production).
--- Conventions: utf8mb4; money DECIMAL(15,2) GH₵; percentages DECIMAL(5,2);
--- dates stored ISO (DATE); timestamps DATETIME in Africa/Accra (= UTC, no DST).
--- Requirement IDs in comments refer to docs/stage1/05_Master_Requirements.md.
--- Matches docs/diagrams/01-database-erd.drawio (generated from this file).
--- =====================================================================
+
+-- The database schema
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
--- ---------------------------------------------------------------------
+
 -- 1. Identity, access and sessions (FR-01 to FR-05, FR-29, NFR-01)
--- ---------------------------------------------------------------------
+
 
 CREATE TABLE roles (
   id            TINYINT UNSIGNED NOT NULL,
@@ -31,7 +24,7 @@ CREATE TABLE users (
   full_name            VARCHAR(120) NOT NULL,
   phone_e164           VARCHAR(16)  NULL,       -- +233XXXXXXXXX, used for SMS
   email                VARCHAR(190) NULL,
-  password_hash        VARCHAR(255) NOT NULL,   -- password_hash(); never plain text
+  password_hash        VARCHAR(255) NOT NULL,   -- password_hash().
   must_change_password TINYINT(1)   NOT NULL DEFAULT 1,
   status               ENUM('active','locked','deactivated') NOT NULL DEFAULT 'active',
   failed_login_count   SMALLINT UNSIGNED NOT NULL DEFAULT 0,
@@ -77,9 +70,8 @@ CREATE TABLE login_attempts (
   KEY ix_login_ip_time (ip_address, attempted_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ---------------------------------------------------------------------
+
 -- 2. Projects, assignments, activities, milestones (FR-04, FR-06 to FR-08, FR-13)
--- ---------------------------------------------------------------------
 
 CREATE TABLE projects (
   id                  INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -95,7 +87,7 @@ CREATE TABLE projects (
   actual_finish       DATE NULL,
   payment_period_days SMALLINT UNSIGNED NOT NULL DEFAULT 30,   -- A9 parameter p
   status              ENUM('planning','active','on_hold','completed','archived') NOT NULL DEFAULT 'planning',
-  is_demo             TINYINT(1) NOT NULL DEFAULT 0,             -- synthetic data flag
+  is_demo             TINYINT(1) NOT NULL DEFAULT 0,             --  data i want to use for demonstration.
   last_change_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,  -- polling stamp (FR-24)
   change_seq          INT UNSIGNED NOT NULL DEFAULT 0,             -- increments on every change (poll token)
   last_alert_eval_on  DATE NULL,                                  -- daily evaluation guard
@@ -151,7 +143,7 @@ CREATE TABLE activities (
   CONSTRAINT ck_act_cost    CHECK (budgeted_cost IS NULL OR budgeted_cost >= 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Optional finish-to-start dependencies (FR-08). No critical-path calculation.
+-- Finish-to-start dependencies (FR-08).
 CREATE TABLE activity_dependencies (
   activity_id    INT UNSIGNED NOT NULL,
   predecessor_id INT UNSIGNED NOT NULL,
@@ -179,15 +171,14 @@ CREATE TABLE milestones (
   CONSTRAINT fk_ms_creator  FOREIGN KEY (created_by)  REFERENCES users (id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ---------------------------------------------------------------------
+
 -- 3. Progress and approval (FR-09, FR-30, FR-32, FR-39)
--- ---------------------------------------------------------------------
 
 CREATE TABLE delay_reasons (
   id              SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
   code            VARCHAR(30) NOT NULL,
   label           VARCHAR(80) NOT NULL,
-  raises_critical TINYINT(1)  NOT NULL DEFAULT 0,   -- 1 = A15 (work stoppage, safety incident)
+  raises_critical TINYINT(1)  NOT NULL DEFAULT 0,   
   is_active       TINYINT(1)  NOT NULL DEFAULT 1,
   sort_order      SMALLINT    NOT NULL DEFAULT 0,
   PRIMARY KEY (id),
@@ -223,7 +214,7 @@ CREATE TABLE progress_records (
   CONSTRAINT ck_pr_review   CHECK (status = 'submitted' OR reviewed_by IS NOT NULL)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- One optional photo per progress record (FR-39, Could). Stored in DB, never on web disk.
+-- Photo per progress record (FR-39, Could). Stored in DB, never on web disk.
 CREATE TABLE progress_photos (
   id                 INT UNSIGNED NOT NULL AUTO_INCREMENT,
   progress_record_id INT UNSIGNED NOT NULL,
@@ -239,12 +230,11 @@ CREATE TABLE progress_photos (
   CONSTRAINT ck_photo_size   CHECK (byte_size <= 307200)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ---------------------------------------------------------------------
+
 -- 4. Cost and payment (FR-14 to FR-16, FR-28, FR-31)
--- ---------------------------------------------------------------------
 
 -- Budget versions. Exactly one current approved version per project:
--- is_current is 1 or NULL, and (project_id, is_current) is unique.
+
 CREATE TABLE budgets (
   id             INT UNSIGNED NOT NULL AUTO_INCREMENT,
   project_id     INT UNSIGNED NOT NULL,
@@ -290,7 +280,7 @@ CREATE TABLE expenditures (
   amount        DECIMAL(15,2) NOT NULL,
   description   VARCHAR(300) NOT NULL,
   reference_no  VARCHAR(50)  NULL,              -- voucher or receipt number
-  supplier_name VARCHAR(150) NULL,              -- hidden from SE and Client
+  supplier_name VARCHAR(150) NULL,              
   status        ENUM('active','voided') NOT NULL DEFAULT 'active',
   void_reason   VARCHAR(300) NULL,
   recorded_by   INT UNSIGNED NOT NULL,
@@ -309,7 +299,7 @@ CREATE TABLE expenditures (
   CONSTRAINT ck_exp_void     CHECK (status = 'active' OR void_reason IS NOT NULL)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Interim valuations / payment certificates. 'overdue' is derived, not stored (3NF):
+-- Interim valuations / payment certificates. 'overdue' is derived, not stored:
 -- not fully paid AND today > submitted_date + projects.payment_period_days.
 CREATE TABLE payment_certificates (
   id               INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -349,9 +339,7 @@ CREATE TABLE payment_transactions (
   CONSTRAINT ck_pay_amount   CHECK (amount > 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ---------------------------------------------------------------------
 -- 5. Resources (FR-18, FR-19, FR-33, FR-34)
--- ---------------------------------------------------------------------
 
 CREATE TABLE resource_categories (
   id    TINYINT UNSIGNED NOT NULL,
@@ -366,10 +354,10 @@ CREATE TABLE resources (
   project_id       INT UNSIGNED NOT NULL,
   category_id      TINYINT UNSIGNED NOT NULL,
   name             VARCHAR(120) NOT NULL,
-  unit             VARCHAR(20)  NOT NULL,          -- from standard unit list (NFR-12)
+  unit             VARCHAR(20)  NOT NULL,          
   planned_qty      DECIMAL(12,2) NULL,
   reorder_level    DECIMAL(12,2) NULL,             -- materials only (A10)
-  unit_rate        DECIMAL(15,2) NULL,             -- supplier price / labour rate: hidden from SE, Client
+  unit_rate        DECIMAL(15,2) NULL,             -- supplier price / labour rate.
   equipment_status ENUM('working','faulty','idle','off_site') NULL,   -- equipment only (A14)
   status           ENUM('active','archived') NOT NULL DEFAULT 'active',
   created_by       INT UNSIGNED NULL,
@@ -383,8 +371,7 @@ CREATE TABLE resources (
   CONSTRAINT ck_res_qty      CHECK ((planned_qty IS NULL OR planned_qty >= 0) AND (reorder_level IS NULL OR reorder_level >= 0) AND (unit_rate IS NULL OR unit_rate >= 0))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dated movements. received/used for materials; attendance (head count) for labour;
--- hours for equipment. Balance = sum(received) - sum(used).
+-- Received/used for materials.
 CREATE TABLE resource_usage (
   id          INT UNSIGNED NOT NULL AUTO_INCREMENT,
   resource_id INT UNSIGNED NOT NULL,
@@ -394,7 +381,7 @@ CREATE TABLE resource_usage (
   quantity    DECIMAL(12,2) NOT NULL,
   remarks     VARCHAR(300) NULL,
   recorded_by INT UNSIGNED NOT NULL,
-  client_uuid CHAR(36) NULL,                      -- offline idempotency key (FR-38)
+  client_uuid CHAR(36) NULL,                      
   created_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   UNIQUE KEY uq_usage_client_uuid (client_uuid),
@@ -426,10 +413,8 @@ CREATE TABLE material_requests (
   CONSTRAINT ck_mreq_qty       CHECK (quantity > 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ---------------------------------------------------------------------
--- 6. Alerts, thresholds and SMS (FR-20 to FR-22)
--- ---------------------------------------------------------------------
 
+-- 6. Alerts, thresholds and SMS (FR-20 to FR-22)
 -- Thresholds: scope 'global' (Director limits, project_id NULL) or 'project' (PM, within limits).
 CREATE TABLE alert_settings (
   id               INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -467,8 +452,7 @@ CREATE TABLE threshold_proposals (
   CONSTRAINT fk_tp_decider  FOREIGN KEY (decided_by)  REFERENCES users (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- An alert instance (thesis entity "notifications"). De-duplication: only one open
--- alert per dedup_key (rule + record); open_dedup_key is NULL once cleared.
+-- Notification 
 CREATE TABLE notifications (
   id             INT UNSIGNED NOT NULL AUTO_INCREMENT,
   rule_code      VARCHAR(4)  NOT NULL,         -- A1 .. A15, A6b
@@ -479,7 +463,7 @@ CREATE TABLE notifications (
   dedup_key      VARCHAR(120) NOT NULL,        -- e.g. A1:activity:42
   title          VARCHAR(150) NOT NULL,
   description    VARCHAR(500) NOT NULL,
-  is_internal    TINYINT(1)  NOT NULL DEFAULT 1,   -- 0 only for client-safe notices (A4)
+  is_internal    TINYINT(1)  NOT NULL DEFAULT 1,   
   status         ENUM('generated','resolved') NOT NULL DEFAULT 'generated',
   created_at     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   cleared_at     DATETIME NULL,
@@ -491,7 +475,7 @@ CREATE TABLE notifications (
   CONSTRAINT ck_notif_clear   CHECK (status = 'generated' OR cleared_at IS NOT NULL)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Per-recipient state: delivered (in-app), read, acknowledged; SMS sub-status.
+-- notification recipient.
 CREATE TABLE notification_recipients (
   id              INT UNSIGNED NOT NULL AUTO_INCREMENT,
   notification_id INT UNSIGNED NOT NULL,
@@ -507,13 +491,13 @@ CREATE TABLE notification_recipients (
   CONSTRAINT fk_nr_user  FOREIGN KEY (user_id)         REFERENCES users (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- SMS attempts and cap accounting (FR-22). Credentials are never stored here.
+-- SMS attempts and cap accounting (FR-22).
 CREATE TABLE sms_log (
   id           INT UNSIGNED NOT NULL AUTO_INCREMENT,
   recipient_id INT UNSIGNED NOT NULL,
   phone_e164   VARCHAR(16) NOT NULL,
   message      VARCHAR(320) NOT NULL,
-  provider     VARCHAR(30) NOT NULL,          -- sandbox, arkesel
+  provider     VARCHAR(30) NOT NULL,          -- sandbox, arkesel [sms gateway]
   status       ENUM('queued','sent','failed','capped') NOT NULL,
   provider_ref VARCHAR(80) NULL,
   error_text   VARCHAR(300) NULL,
@@ -527,20 +511,16 @@ CREATE TABLE sms_log (
   CONSTRAINT fk_sms_recipient FOREIGN KEY (recipient_id) REFERENCES notification_recipients (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ---------------------------------------------------------------------
 -- 7. Audit, backup, settings, offline sync (FR-25, FR-36, FR-38, NFR-10)
--- ---------------------------------------------------------------------
-
--- Append-only. The application DB account has INSERT and SELECT only on this table.
 CREATE TABLE audit_logs (
   id                 BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  user_id            INT UNSIGNED NULL,          -- NULL for failed login with unknown username
+  user_id            INT UNSIGNED NULL,          
   username_attempted VARCHAR(50) NULL,
-  action             VARCHAR(40) NOT NULL,       -- login, login_failed, logout, create, update, archive, approve, ...
+  action             VARCHAR(40) NOT NULL,       
   entity_type        VARCHAR(40) NULL,
   entity_id          VARCHAR(40) NULL,
-  old_values         TEXT NULL,                  -- JSON; secrets never stored
-  new_values         TEXT NULL,                  -- JSON
+  old_values         TEXT NULL,                  
+  new_values         TEXT NULL,                 
   ip_address         VARCHAR(45) NULL,
   user_agent         VARCHAR(255) NULL,
   created_at         DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -559,8 +539,8 @@ CREATE TABLE backup_log (
   byte_size    BIGINT UNSIGNED NULL,
   sha256       CHAR(64) NULL,
   retention    ENUM('daily','weekly') NULL,
-  row_counts   TEXT NULL,                        -- JSON table -> count, for restore verification
-  triggered_by INT UNSIGNED NULL,                -- NULL = external scheduler
+  row_counts   TEXT NULL,                       
+  triggered_by INT UNSIGNED NULL,                
   notes        VARCHAR(300) NULL,
   started_at   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   finished_at  DATETIME NULL,
@@ -580,12 +560,12 @@ CREATE TABLE system_settings (
   CONSTRAINT fk_sysset_user FOREIGN KEY (updated_by) REFERENCES users (id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Offline sync idempotency (FR-38): one row per client-generated mutation.
+-- Offline sync idempotency (FR-38).
 CREATE TABLE sync_requests (
   client_uuid  CHAR(36) NOT NULL,
   user_id      INT UNSIGNED NOT NULL,
   endpoint     VARCHAR(80) NOT NULL,
-  result_code  SMALLINT UNSIGNED NOT NULL,       -- HTTP status returned first time
+  result_code  SMALLINT UNSIGNED NOT NULL,       
   entity_type  VARCHAR(40) NULL,
   entity_id    INT UNSIGNED NULL,
   received_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

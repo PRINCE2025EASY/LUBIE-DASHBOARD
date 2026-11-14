@@ -7,9 +7,7 @@ namespace Lubie\Sms;
 use Lubie\Support\Env;
 
 /**
- * Arkesel-compatible HTTP adapter (POST JSON, api-key header, 5 s timeout). Base URL,
- * key and sender ID are read from the environment. Untested until a real account is
- * configured; the system never reports delivery without the provider's acceptance.
+ * Arkesel-compatible HTTP adapter (POST JSON, api-key header, 5 s timeout). 
  */
 final class HttpSmsGateway implements SmsGateway
 {

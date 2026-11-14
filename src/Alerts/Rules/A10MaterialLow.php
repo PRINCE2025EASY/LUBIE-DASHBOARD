@@ -10,7 +10,7 @@ use Lubie\Alerts\Thresholds;
 use Lubie\Domain\KpiResult;
 use Lubie\Domain\ProjectSnapshot;
 
-/** A10: material balance below its reorder level. */
+
 final class A10MaterialLow implements AlertRule
 {
     public function evaluate(ProjectSnapshot $s, KpiResult $k, Thresholds $t, string $today): array

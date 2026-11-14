@@ -6,7 +6,7 @@ namespace Lubie\Http;
 
 use Lubie\Support\Env;
 
-/** Security headers on every response (NFR-01, ST-13). No inline scripts are used, so CSP is strict. */
+/** Security headers on every response. */
 final class SecurityHeaders
 {
     public static function apply(Response $r, Request $req): Response

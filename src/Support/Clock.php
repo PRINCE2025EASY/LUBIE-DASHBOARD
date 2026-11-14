@@ -9,7 +9,6 @@ use DateTimeZone;
 
 /**
  * Time source. Business dates use Africa/Accra (UTC+0, no daylight saving).
- * Injected everywhere so tests can fix "today".
  */
 class Clock
 {

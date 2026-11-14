@@ -19,8 +19,7 @@ use Lubie\Support\Money;
 use Lubie\Views\View;
 
 /**
- * Report export (FR-26): same queries, KPI service and permissions as the dashboards.
- * Files are streamed, never stored on the server. Every export is audit-logged.
+ * Report export 
  */
 final class ReportService
 {

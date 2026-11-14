@@ -1,6 +1,4 @@
--- remove_demo.sql: deletes every row created by seed_demo.sql (is_demo projects, *_demo users).
--- Run in DEV or TEST only. Audit rows written while using demo accounts are kept for
--- integrity only if you skip the last two statements; by default they are removed too.
+
 CREATE TEMPORARY TABLE demo_p AS SELECT id FROM projects WHERE is_demo = 1;
 CREATE TEMPORARY TABLE demo_u AS SELECT id FROM users WHERE username LIKE '%\_demo';
 

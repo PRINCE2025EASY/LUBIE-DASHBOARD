@@ -1,5 +1,4 @@
-// Application shell: session info, theme, logout, alert bell, network status, service worker,
-// hash router per role. Every permission is enforced on the server; the UI only hides clutter.
+
 import { get, post, setCsrf, base } from './lib/api.js';
 import { h, clear, badge, fmtDateTime } from './lib/dom.js';
 import * as outbox from './lib/outbox.js';
@@ -85,7 +84,7 @@ function setupNetwork() {
   const update = async () => {
     const mine = ++seq;
     const n = await outbox.count().catch(() => 0);
-    if (mine !== seq) return; // a newer update started; ignore this stale count
+    if (mine !== seq) return; 
     if (!navigator.onLine) { st.className = 'badge text-bg-warning'; st.textContent = `Offline${n ? ` · ${n} waiting` : ''}`; }
     else if (n) { st.className = 'badge text-bg-info'; st.textContent = `${n} waiting to sync`; }
     else { st.className = 'badge d-none'; st.textContent = ''; }
@@ -99,7 +98,7 @@ function setupNetwork() {
 
 async function registerSw() {
   if (!('serviceWorker' in navigator)) return;
-  // After a release the new service worker takes over; reload once so every file is the new version.
+  // version.
   const hadController = !!navigator.serviceWorker.controller;
   let reloaded = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {

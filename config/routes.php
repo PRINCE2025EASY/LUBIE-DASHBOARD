@@ -14,12 +14,7 @@ use Lubie\Controllers\ReportController as Rep;
 use Lubie\Controllers\ThresholdController as Thr;
 use Lubie\Http\Router;
 
-/*
- * Every route declares its guard (deny by default). Guard syntax:
- *   public | auth | perm:<permission>   plus optional flags: ,pwchange (allowed while a
- *   password change is pending) ,nocsrf (token-authenticated machine endpoint only).
- * Project scope is enforced inside services on every ID.
- */
+
 return static function (Router $r): void {
     $v = '/api/v1';
     // Pages

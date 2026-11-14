@@ -2,12 +2,9 @@
 
 declare(strict_types=1);
 
-/*
- * Role permission matrix (Design Specification s6). Data, not code: tests iterate over it.
- * Project scope (assigned projects only; Director all projects read) is checked separately
- * by Authorizer::requireProject() on every ID.
- * Roles: admin, director, pm, qs, site, client.
- */
+
+ // Role permission matrix 
+ 
 return [
     'password.change'      => ['admin', 'director', 'pm', 'qs', 'site', 'client'],
     'alerts.view'          => ['director', 'pm', 'qs', 'site', 'client'],

@@ -6,7 +6,6 @@ namespace Lubie\Http;
 
 use RuntimeException;
 
-/** An error with an HTTP status and a stable code, rendered in the single JSON error format. */
 class HttpException extends RuntimeException
 {
     /** @param array<string, string> $fields */

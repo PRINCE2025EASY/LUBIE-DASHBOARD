@@ -6,6 +6,23 @@ them into chat, e-mail or the repository.
 
 Time needed: about 45 minutes.
 
+## Quick path when Aiven already runs (your set-up from November 2026)
+
+You already have the Aiven service, the schema, the `lubie_app` account and the CA file in
+`storage\aiven-ca.pem`. Your Aiven settings are saved in `.env.before-demo`.
+
+1. Load the presentation data into Aiven: double-click **cloud-load.bat**.
+   - Type the `avnadmin` password from Aiven > Overview > Connection information.
+   - Type `RESET` to replace the old demo data in `defaultdb`.
+   - Choose the password for all presentation accounts (it may be the same as on XAMPP).
+   - The window ends with the doctor check on Aiven: every line should start with OK.
+   Your local `.env` and the `lubie_app` password do not change.
+2. Push the code to GitHub (XAMPP Shell): `git push origin main iteration-1`.
+3. Follow section 3 below. For `DB_PASSWORD` open `.env.before-demo` in Notepad and copy the
+   value after `DB_PASSWORD=`.
+4. Log in on the Render address with `admin`, `director`, `pm1` and the others from
+   `docs/PRESENTATION_GUIDE.md`, using the password from step 1.
+
 ## 1. Database on Aiven
 
 1. Sign up at https://console.aiven.io (GitHub or e-mail). Choose the Free plan.
@@ -66,7 +83,8 @@ first Administrator now: `php bin/console.php setup:first-admin` (in a Shell wit
 ## 4. Check the live site
 
 1. Open `https://<your address>/health`. Expect `{"status":"ok","db":"ok"}`.
-2. Open the address, log in (demo: `admin_demo`, password in `database/seed_demo.sql`).
+2. Open the address and log in (`admin` with the presentation password; with the synthetic demo
+   data instead: `admin_demo`, password in `database/seed_demo.sql`).
 3. Administrator > Summary > Set-up checks: all OK except SMS (sandbox) is expected.
 4. Administrator > Audit trail: your login row must show your own public IP address
    (search "what is my IP"). If it shows a 10.x or 172.x address, set `TRUSTED_PROXY_HOPS=2`

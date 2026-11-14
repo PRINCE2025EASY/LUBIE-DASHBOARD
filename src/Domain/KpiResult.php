@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace Lubie\Domain;
 
-/**
- * Calculated indicators. Null means "not available" (zero denominator or missing data);
- * the UI shows a text explanation instead of a misleading number.
- */
+
 final class KpiResult
 {
     /**

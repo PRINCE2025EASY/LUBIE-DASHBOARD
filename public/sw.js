@@ -1,6 +1,4 @@
-/* Service worker (FR-38): caches the app shell and the last copy of read-only API data so
-   site staff can open their activities without a connection. Writes are never cached; they
-   go through the encrypted outbox in the page. Versioned cache; old caches are deleted. */
+
 const VERSION = 'lubie-v0.6.1';
 const SCOPE = new URL(self.registration.scope).pathname.replace(/\/$/, '');
 const SHELL = [
@@ -47,7 +45,7 @@ async function networkFirst(req, fallbackUrl) {
 self.addEventListener('fetch', e => {
   const req = e.request;
   const url = new URL(req.url);
-  if (url.origin !== location.origin || req.method !== 'GET') return; // POST/PUT/PATCH go straight to the network
+  if (url.origin !== location.origin || req.method !== 'GET') return; 
   const path = url.pathname.slice(SCOPE.length) || '/';
   if (req.mode === 'navigate') { e.respondWith(networkFirst(req, SCOPE + '/offline')); return; }
   if (path.startsWith('/api/')) {
@@ -56,8 +54,7 @@ self.addEventListener('fetch', e => {
     return;
   }
   if (path.startsWith('/assets/') || path === '/manifest.webmanifest') {
-    // Exact match first (the ?v= version is part of the key), so a new release is never
-    // answered with an older cached file. Version-less match only when the network is down.
+    
     e.respondWith(caches.match(req).then(hit => hit || fetch(req).then(res => {
       if (res.ok) { const copy = res.clone(); caches.open(VERSION).then(c => c.put(req, copy)); }
       return res;

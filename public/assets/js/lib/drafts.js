@@ -1,4 +1,4 @@
-// Draft autosave (FR-37): keeps unsent form input in this browser only. Not offline mode.
+// Draft autosave: keeps unsent form input in this browser.
 const KEY = 'lubie-draft:';
 export function bindDraft(form, id) {
   const k = KEY + id;

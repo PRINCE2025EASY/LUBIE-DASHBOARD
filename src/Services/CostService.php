@@ -17,8 +17,8 @@ use Lubie\Support\Money;
 use Lubie\Validation\Validator;
 
 /**
- * Budgets with Director-approved revisions (FR-14, FR-31), expenditure (FR-15) and
- * valuations/payments (FR-28). Baselines are never overwritten; corrections are voids.
+ * Budgets with Director-approved revisions, expenditure  and
+ * valuations/payments. Baselines are never overw(ritten; corrections are voids.
  */
 final class CostService
 {
@@ -35,7 +35,7 @@ final class CostService
     ) {
     }
 
-    // ---------------- Budgets ----------------
+    //  Budgets 
 
     /** @return array{current:?array, versions:list<array<string, mixed>>} */
     public function budgets(AuthUser $u, int $projectId): array
@@ -116,7 +116,7 @@ final class CostService
         return $this->repo->pendingBudgetsAll();
     }
 
-    // ---------------- Expenditure ----------------
+    // Expenditure 
 
     /** @return array{data:list<array<string, mixed>>, meta:array<string, int>} */
     public function expenditures(AuthUser $u, int $projectId, int $page, int $perPage): array
@@ -188,7 +188,7 @@ final class CostService
         return $this->repo->categories();
     }
 
-    // ---------------- Valuations and payments ----------------
+    // Valuations and payments 
 
     /** @return list<array<string, mixed>> */
     public function certificates(AuthUser $u, int $projectId): array

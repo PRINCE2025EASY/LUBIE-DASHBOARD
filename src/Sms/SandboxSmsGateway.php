@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace Lubie\Sms;
 
-/**
- * Log-only adapter for development and tests. Nothing is sent to a phone; the sms_log
- * row records provider 'sandbox' so reports never claim real delivery.
- */
+
 final class SandboxSmsGateway implements SmsGateway
 {
     /** @var list<array{phone:string, message:string}> */

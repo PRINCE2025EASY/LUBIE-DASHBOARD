@@ -1,5 +1,5 @@
-// Site Engineer views: assigned activities, one-screen progress update (online or offline),
-// submission status, add activity (no cost fields: the API never sends or accepts them).
+// Site Engineer views.
+// submission status, add activity.
 import { get, post, formData, showErrors, showOk } from '../lib/api.js';
 import { h, clear, card, table, field, select, scheduleBadge, fmtPct, fmtDate, fmtDateTime, todayIso, spinner, badge, icon } from '../lib/dom.js';
 import * as outbox from '../lib/outbox.js';

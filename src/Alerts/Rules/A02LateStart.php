@@ -11,7 +11,7 @@ use Lubie\Domain\KpiResult;
 use Lubie\Domain\ProjectSnapshot;
 use Lubie\Support\Dates;
 
-/** A2: today after planned start, no actual start and no approved progress. */
+
 final class A02LateStart implements AlertRule
 {
     public function evaluate(ProjectSnapshot $s, KpiResult $k, Thresholds $t, string $today): array

@@ -1,5 +1,5 @@
 // Client: one simple screen per project (overall %, milestone timeline, payment card).
-// The API sends only client-safe fields; nothing internal reaches this page.
+
 import { get, base } from '../lib/api.js';
 import { h, clear, card, fmtMoney, fmtPct, spinner, icon } from '../lib/dom.js';
 import { pageHeader, lastUpdated, milestoneList, watch } from './common.js';

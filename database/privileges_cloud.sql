@@ -1,5 +1,3 @@
--- privileges_cloud.sql: per-table grants for the application account on a managed MySQL (Aiven).
--- Run as the owner account after privileges_cloud_user.sql. Host '%' because the app connects over TLS from the host's network.
 GRANT SELECT, INSERT, UPDATE, DELETE ON lubie_dashboard.roles TO 'lubie_app'@'%';
 GRANT SELECT, INSERT, UPDATE, DELETE ON lubie_dashboard.users TO 'lubie_app'@'%';
 GRANT SELECT, INSERT, UPDATE, DELETE ON lubie_dashboard.sessions TO 'lubie_app'@'%';

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Lubie\Support;
 
-/** Display helpers: dates are stored ISO (YYYY-MM-DD) and shown DD/MM/YYYY. */
+/** Dates are stored ISO (YYYY-MM-DD) and shown DD/MM/YYYY. */
 final class Dates
 {
     public static function uk(?string $iso): string

@@ -10,7 +10,7 @@ use Lubie\Alerts\Thresholds;
 use Lubie\Domain\KpiResult;
 use Lubie\Domain\ProjectSnapshot;
 
-/** A7: CPI below c (default 0.90) when EV > 0. */
+/** CPI below c (default 0.90) when EV > 0. */
 final class A07LowCpi implements AlertRule
 {
     public function evaluate(ProjectSnapshot $s, KpiResult $k, Thresholds $t, string $today): array

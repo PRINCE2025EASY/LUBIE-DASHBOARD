@@ -15,7 +15,7 @@ use Lubie\Support\Clock;
 use Lubie\Support\Money;
 use Lubie\Validation\Validator;
 
-/** Projects and assignments (FR-04, FR-06, FR-07). */
+/** Projects and assignments */
 final class ProjectService
 {
     private const TRANSITIONS = [

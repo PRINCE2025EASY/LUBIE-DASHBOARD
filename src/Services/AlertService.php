@@ -15,9 +15,9 @@ use Lubie\Support\Clock;
 use PDOException;
 
 /**
- * Alert engine (FR-20, FR-22). Evaluated after saves and on the first dashboard request of
- * the day (no cron). Creates an alert only when its condition first becomes true (unique
- * open dedup key), clears it when false, and sends at most one SMS per recipient.
+ * Alert engine. Evaluated after saves and on the first dashboard request of
+ * the day (no cron). Creates an alert only when its condition first becomes true 
+ * clears it when false, and sends at most one SMS per recipient.
  */
 final class AlertService
 {

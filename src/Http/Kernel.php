@@ -16,11 +16,6 @@ use Lubie\Support\Env;
 use Lubie\Views\View;
 use Throwable;
 
-/**
- * Request pipeline: security headers -> route -> session -> authentication ->
- * forced password change -> permission (deny by default) -> CSRF -> controller.
- * One central place maps errors to the single JSON error format or an HTML page.
- */
 final class Kernel
 {
     public function __construct(private Container $c, private Router $router, private string $basePath = '')

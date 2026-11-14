@@ -11,9 +11,8 @@ use Lubie\Domain\ScheduleStatus;
 use Lubie\Support\Money;
 
 /**
- * KPI engine (FR-10, FR-11, FR-12, FR-16, FR-17; Design Specification s9.1).
- * Pure calculation on a snapshot: no database access, fully unit-tested against the
- * thesis worked example (Table 2.1) and edge cases. Only APPROVED progress counts.
+ * KPI engine.
+ * Pure calculation on a snapshot.
  */
 final class KpiService
 {
@@ -87,8 +86,7 @@ final class KpiService
     }
 
     /**
-     * Cumulative planned and earned value by period (S-curve, FR-11). Weekly points,
-     * monthly when the project is longer than 60 weeks.
+     * Cumulative planned and earned value by period. Weekly points.
      * @return list<array{date:string, pv:?int, ev:?int, pv_pct:?float, ev_pct:?float}>
      */
     public function series(ProjectSnapshot $s, string $asOf): array

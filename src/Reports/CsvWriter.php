@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Lubie\Reports;
 
-/** CSV output with UTF-8 BOM (Excel) and formula-injection protection (ST-15). */
+/** CSV output with UTF-8 BOM (Excel). */
 final class CsvWriter
 {
     /**

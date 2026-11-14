@@ -12,10 +12,7 @@ use Lubie\Security\AuthUser;
 use Lubie\Security\DbSessionHandler;
 use Lubie\Support\Clock;
 
-/**
- * Unified login (FR-01, FR-29): generic errors, constant-time verification for unknown
- * users, per-account lockout and per-IP throttling, password change and admin reset (FR-02).
- */
+
 final class AuthService
 {
     public const HASH_OPTIONS = ['cost' => 12];

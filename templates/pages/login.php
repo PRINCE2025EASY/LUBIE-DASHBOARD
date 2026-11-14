@@ -26,8 +26,8 @@
     </div>
     <div id="login-error" class="alert alert-danger d-none py-2" role="alert"></div>
     <button class="btn btn-brand btn-lg w-100" type="submit" id="login-btn">Log in</button>
-    <p class="small text-body-secondary mt-3 mb-0 text-center">Problems logging in? Ask your administrator to reset your password.</p>
+    <p class="small text-body-secondary mt-3 mb-0 text-center">Problems logging in? Contact your administrator for assistance.</p>
   </form>
   <p class="small text-body-secondary text-center mt-2 mb-0" id="wake-msg" hidden>Waking up the server, please wait…</p>
 </div>
-<p class="login-footer">© Lubie Construction Works · Project monitoring prototype</p>
+<p class="login-footer">© Lubie Construction Works · Project monitoring System</p>

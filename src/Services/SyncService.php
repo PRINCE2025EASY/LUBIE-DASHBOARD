@@ -10,9 +10,7 @@ use Lubie\Security\AuthUser;
 use Lubie\Support\Clock;
 
 /**
- * Offline synchronisation (FR-38). Each queued item carries a client_uuid. The server applies
- * the same validation and scope checks as a direct request; a replayed uuid returns the first
- * result instead of creating a duplicate.
+ * Offline synchronisation. 
  */
 final class SyncService
 {

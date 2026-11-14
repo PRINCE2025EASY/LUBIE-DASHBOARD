@@ -4,11 +4,7 @@ declare(strict_types=1);
 
 namespace Lubie\Domain;
 
-/**
- * Everything the KPI and alert services need about one project at one date,
- * loaded once (ProjectSnapshotRepository) and shared by dashboards, reports and alerts.
- * Money is integer pesewas; percentages are integer hundredths (85.50 % = 8550).
- */
+
 final class ProjectSnapshot
 {
     /**

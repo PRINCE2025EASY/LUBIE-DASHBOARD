@@ -10,7 +10,6 @@ use Lubie\Http\RequestContext;
 use Lubie\Http\Response;
 use Lubie\Security\AuthUser;
 
-/** Shared helpers for thin controllers: current user and JSON responses. */
 abstract class BaseController
 {
     public function __construct(protected Container $c)

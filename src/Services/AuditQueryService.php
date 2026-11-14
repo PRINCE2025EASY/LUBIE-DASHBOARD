@@ -6,7 +6,7 @@ namespace Lubie\Services;
 
 use Lubie\Db\Database;
 
-/** Administrator audit viewer with filters and pagination (FR-25). Read-only by design. */
+/** Administrator audit viewer with filters and pagination. Read-only by design. */
 final class AuditQueryService
 {
     public function __construct(private Database $db)

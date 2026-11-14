@@ -1,4 +1,4 @@
-// DOM helpers. Text is always inserted with textContent (XSS-safe); no innerHTML with data.
+// Text is always inserted with textContent (XSS-safe); no innerHTML with data.
 export function h(tag, attrs = {}, ...children) {
   const el = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs || {})) {
@@ -30,7 +30,7 @@ const TONES = {
   ok: ['success', 'check-circle', 'On track'], warning: ['warning', 'exclamation-triangle', 'Warning'], critical: ['danger', 'x-octagon', 'Critical'],
   information: ['info', 'info-circle', 'Information'], medium: ['warning', 'exclamation-circle', 'Medium'], high: ['danger', 'exclamation-octagon', 'High'],
 };
-// Status is always colour + icon + text (never colour alone).
+// Status is always colour + icon + text.
 export function badge(tone, text) {
   const [cls, ic, label] = TONES[tone] || TONES.information;
   return h('span', { class: `badge text-bg-${cls} status-badge` }, icon(ic), ' ', text || label);

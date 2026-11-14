@@ -20,7 +20,11 @@ declare(strict_types=1);
  *                           per-table grants (audit_logs append-only). Prompts for the new password.
  *   demo:install --owner=root  LOCAL XAMPP only: (re)build database lubie_dashboard with the presentation
  *                           data (database/seed_lubie.sql), create lubie_app and point .env at it.
- *   doctor                  Read-only check of PHP, extensions, .env, database and schema. Shows no secrets.
+ *   cloud:load-data --owner=avnadmin [--env-file=.env.before-demo]
+ *                           Replace the data in the CLOUD database (Aiven) with the presentation data. Reads the
+ *                           connection from --env-file, asks for the owner password, keeps lubie_app's password.
+ *   doctor [--env-file=.env.before-demo]  Read-only check of PHP, extensions, .env, database and schema.
+ *                           Shows no secrets. --env-file checks the cloud settings instead of .env.
  *
  * Secrets are never passed on the command line; they come from .env or the host settings.
  */
@@ -81,6 +85,62 @@ function lubie_prompt(string $label, bool $hidden = false): string
     }
     return trim((string) $v);
 }
+
+/** Ask for one presentation password and return its hash. */
+function lubie_presentation_hash(callable $fail): string
+{
+    $pw = lubie_prompt('Choose ONE password for all presentation accounts (10+ characters, letters and digits)', true);
+    if (strlen($pw) < 10 || !preg_match('/[A-Za-z]/', $pw) || !preg_match('/\d/', $pw) || $pw !== lubie_prompt('Repeat it', true)) {
+        $fail('Passwords must match, have 10 or more characters, and contain letters and digits.');
+    }
+    return password_hash($pw, PASSWORD_DEFAULT, AuthService::HASH_OPTIONS);
+}
+
+/** Drop every table, then build schema, reference data and presentation data. */
+function lubie_rebuild_with_presentation_data(Database $db, string $root, string $hash): void
+{
+    $pdo = $db->pdo();
+    $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');
+    foreach (array_column($db->all('SELECT table_name AS t FROM information_schema.tables WHERE table_schema = DATABASE()'), 't') as $t) {
+        $pdo->exec('DROP TABLE `' . str_replace('`', '', (string) $t) . '`');
+    }
+    $pdo->exec('SET FOREIGN_KEY_CHECKS = 1');
+    SqlScript::runFile($db, $root . '/database/schema.sql');
+    SqlScript::runFile($db, $root . '/database/seed_production.sql');
+    $tmp = tempnam(sys_get_temp_dir(), 'lubie');
+    file_put_contents($tmp, str_replace('<<PASSWORD_HASH>>', $hash, (string) file_get_contents($root . '/database/seed_lubie.sql')));
+    try {
+        SqlScript::runFile($db, $tmp);
+    } finally {
+        @unlink($tmp);
+    }
+}
+
+/** Per-table grants for the app account (audit_logs append-only, schema_migrations read-only). */
+function lubie_grant_app(Database $db, string $acct): int
+{
+    $pdo = $db->pdo();
+    $schema = (string) $db->value('SELECT DATABASE()');
+    $tables = array_column($db->all("SELECT table_name AS t FROM information_schema.tables WHERE table_schema = DATABASE() AND table_type = 'BASE TABLE'"), 't');
+    foreach ($tables as $t) {
+        $privs = match ((string) $t) { 'audit_logs' => 'SELECT, INSERT', 'schema_migrations' => 'SELECT', default => 'SELECT, INSERT, UPDATE, DELETE' };
+        $pdo->exec("GRANT {$privs} ON `{$schema}`.`{$t}` TO {$acct}");
+    }
+    return count($tables);
+}
+
+/* --env-file=.env.xxx: read settings from another file in the project folder (overrides .env). */
+$useEnvFile = static function (?string $default = null) use ($opt, $root, $fail): ?string {
+    $f = $opt('env-file') ?? $default;
+    if ($f === null) {
+        return null;
+    }
+    if (!preg_match('/^\.env[A-Za-z0-9._-]*$/', $f) || !is_file($root . '/' . $f)) {
+        $fail("Settings file {$f} not found in the project folder.");
+    }
+    Env::load($root . '/' . $f);
+    return $f;
+};
 
 try {
     switch ($cmd) {
@@ -223,40 +283,21 @@ try {
             if ($existing > 0 && lubie_prompt("Database {$dbName} has {$existing} tables. Type RESET to delete its data and load the presentation data") !== 'RESET') {
                 $fail('Nothing was changed.');
             }
-            $demoPw = lubie_prompt('Choose ONE password for all presentation accounts (10+ characters, letters and digits)', true);
-            if (strlen($demoPw) < 10 || !preg_match('/[A-Za-z]/', $demoPw) || !preg_match('/\d/', $demoPw) || $demoPw !== lubie_prompt('Repeat it', true)) {
-                $fail('Passwords must match, have 10 or more characters, and contain letters and digits.');
-            }
+            $hash = lubie_presentation_hash($fail);
             $db = new Database(['host' => '127.0.0.1', 'port' => 3306, 'name' => $dbName, 'user' => $owner, 'pass' => $ownerPw, 'ssl_ca' => null, 'ssl_verify' => false, 'retries' => 1]);
             $pdo = $db->pdo();
-            $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');
-            foreach (array_column($db->all('SELECT table_name AS t FROM information_schema.tables WHERE table_schema = DATABASE()'), 't') as $t) {
-                $pdo->exec('DROP TABLE `' . str_replace('`', '', (string) $t) . '`');
-            }
-            $pdo->exec('SET FOREIGN_KEY_CHECKS = 1');
-            SqlScript::runFile($db, $root . '/database/schema.sql');
-            SqlScript::runFile($db, $root . '/database/seed_production.sql');
-            $hash = password_hash($demoPw, PASSWORD_DEFAULT, AuthService::HASH_OPTIONS);
-            $tmp = tempnam(sys_get_temp_dir(), 'lubie');
-            file_put_contents($tmp, str_replace('<<PASSWORD_HASH>>', $hash, (string) file_get_contents($seedFile)));
-            try {
-                SqlScript::runFile($db, $tmp);
-            } finally {
-                @unlink($tmp);
-            }
+            lubie_rebuild_with_presentation_data($db, $root, $hash);
             // App account with a new random password that only .env knows.
             $appPw = bin2hex(random_bytes(16));
             $acct = "'lubie_app'@'localhost'";
             $pdo->exec("CREATE USER IF NOT EXISTS {$acct} IDENTIFIED BY " . $pdo->quote($appPw));
             $pdo->exec("ALTER USER {$acct} IDENTIFIED BY " . $pdo->quote($appPw));
-            foreach (array_column($db->all("SELECT table_name AS t FROM information_schema.tables WHERE table_schema = DATABASE() AND table_type = 'BASE TABLE'"), 't') as $t) {
-                $privs = match ((string) $t) { 'audit_logs' => 'SELECT, INSERT', 'schema_migrations' => 'SELECT', default => 'SELECT, INSERT, UPDATE, DELETE' };
-                $pdo->exec("GRANT {$privs} ON `{$dbName}`.`{$t}` TO {$acct}");
-            }
+            lubie_grant_app($db, $acct);
             // Point .env at the local database; keep a copy of the previous file.
             $envFile = $root . '/.env';
             $env = is_file($envFile) ? (string) file_get_contents($envFile) : (string) file_get_contents($root . '/.env.example');
-            if (is_file($envFile)) {
+            // Keep the FIRST saved copy: it holds the cloud (Aiven) settings. Never overwrite it.
+            if (is_file($envFile) && !is_file($root . '/.env.before-demo')) {
                 copy($envFile, $root . '/.env.before-demo');
             }
             $set = ['DB_HOST' => '127.0.0.1', 'DB_PORT' => '3306', 'DB_NAME' => $dbName, 'DB_USER' => 'lubie_app', 'DB_PASSWORD' => $appPw, 'DB_SSL_CA' => '', 'DB_SSL_CA_PEM' => '',
@@ -275,9 +316,50 @@ try {
             file_put_contents($envFile, $env);
             $say('');
             $say('Presentation data loaded into ' . $dbName . ' (3 projects, 13 accounts). .env now points to this local database;');
-            $say('the previous .env is saved as .env.before-demo.');
+            $say('The cloud settings stay in .env.before-demo.');
             $say('Accounts (all use the password you chose): admin, director, pm1, pm2, qs1, qs2, se1, se2, se3, client1, client2, client3 (se4 is deactivated).');
             $say('Open http://localhost/lubie-dashboard');
+            break;
+
+        case 'cloud:load-data':
+            $owner = $opt('owner');
+            if ($owner === null || $owner === '1') {
+                $fail('Give the Aiven owner account: --owner=avnadmin');
+            }
+            if (!is_file($root . '/database/seed_lubie.sql')) {
+                $fail('database/seed_lubie.sql is missing.');
+            }
+            $envFile = $useEnvFile('.env.before-demo');
+            $host = (string) Env::get('DB_HOST', '');
+            if ($host === '' || in_array(strtolower($host), ['127.0.0.1', 'localhost', '::1'], true)) {
+                $fail("{$envFile} points to this computer. cloud:load-data is for the cloud database only.");
+            }
+            if (!Env::get('DB_SSL_CA') && !Env::get('DB_SSL_CA_PEM')) {
+                $fail("{$envFile} has no DB_SSL_CA. Aiven requires TLS: set DB_SSL_CA to the path of storage\\aiven-ca.pem.");
+            }
+            $appUser = (string) Env::get('DB_USER', 'lubie_app');
+            if ($appUser === $owner || !preg_match('/^[a-z0-9_]{3,32}$/', $appUser)) {
+                $fail("DB_USER in {$envFile} must be the app account (lubie_app), not the owner.");
+            }
+            $db = Database::fromEnvAs($owner, lubie_prompt("Password of {$owner} (from the Aiven console)", true));
+            $schema = (string) $db->value('SELECT DATABASE()');
+            $say('Cloud server: ' . $db->value('SELECT VERSION()') . ', database ' . $schema . ' (TLS connection)');
+            $existing = (int) $db->value('SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE()');
+            if ($existing > 0 && lubie_prompt("Database {$schema} has {$existing} tables. Type RESET to delete ALL its data and load the presentation data") !== 'RESET') {
+                $fail('Nothing was changed.');
+            }
+            $hash = lubie_presentation_hash($fail);
+            lubie_rebuild_with_presentation_data($db, $root, $hash);
+            $acct = $db->pdo()->quote($appUser) . "@'%'";
+            try {
+                $n = lubie_grant_app($db, $acct);
+                $say("Grants renewed for {$appUser}@% on {$n} tables (its password is unchanged).");
+            } catch (\PDOException $e) {
+                $say("WARN Could not grant to {$appUser}@%: the account may not exist. Run: php bin/console.php setup:app-account --owner={$owner} --host=% --require-ssl");
+            }
+            $say('');
+            $say("Presentation data loaded into {$schema} (3 projects, 13 accounts). Your local .env was not changed.");
+            $say('Accounts (all use the password you chose): admin, director, pm1, pm2, qs1, qs2, se1, se2, se3, client1, client2, client3 (se4 is deactivated).');
             break;
 
         case 'setup:app-account':
@@ -318,6 +400,7 @@ try {
             break;
 
         case 'doctor':
+            $useEnvFile();
             $ok = static fn (bool $b) => $b ? 'OK  ' : 'FIX ';
             $say('Lubie dashboard check (read-only; no secret values shown)');
             $say($ok(PHP_VERSION_ID >= 80200) . 'PHP ' . PHP_VERSION . ' (' . PHP_OS_FAMILY . ', ' . (PHP_INT_SIZE * 8) . '-bit)');

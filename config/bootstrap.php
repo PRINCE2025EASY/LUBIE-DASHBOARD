@@ -15,10 +15,9 @@ use Lubie\Sms\SmsGateway;
 use Lubie\Support\Clock;
 use Lubie\Support\Env;
 
-/*
- * Application bootstrap shared by public/index.php, bin/console.php and tests.
- * Configuration comes from environment variables; .env is read only when present (XAMPP).
- */
+
+ // Configuration comes from environment variables; .env is read only when present (XAMPP).
+ 
 $root = dirname(__DIR__);
 if (is_file($root . '/vendor/autoload.php')) {
     require $root . '/vendor/autoload.php';
@@ -40,7 +39,7 @@ ini_set('display_errors', Env::get('APP_ENV') === 'local' && Env::bool('APP_DEBU
 ini_set('log_errors', '1');
 error_reporting(E_ALL);
 
-/** Build the container for one request (or one test). */
+/** Build the container for one request */
 function lubie_container(?Database $db = null, ?Clock $clock = null): Container
 {
     $c = new Container($db ?? Database::fromEnv(), $clock ?? new Clock(Env::get('APP_FIXED_NOW')));

@@ -1,10 +1,3 @@
--- =====================================================================
--- seed_production.sql  version 0.2.0
--- Reference data only. No users, no demo data, no passwords.
--- The first Administrator is created with the one-time CLI command
---   php bin/console.php setup:first-admin
--- which prompts for the password and forces a change at first login.
--- =====================================================================
 SET NAMES utf8mb4;
 
 INSERT INTO roles (id, code, name, dashboard_path) VALUES

@@ -6,7 +6,7 @@ namespace Lubie\Repositories;
 
 use Lubie\Db\Database;
 
-/** Users and roles. Password hashes are never returned by list methods. */
+/** Users and roles. Password hashes are NOT returned by list methods. */
 final class UserRepository
 {
     private const PUBLIC_COLS = 'u.id, u.username, u.full_name, u.phone_e164, u.email, u.status, u.must_change_password, u.last_login_at,

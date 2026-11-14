@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Lubie\Alerts;
 
-/** Effective thresholds for one project: global (Director) values overridden by project (PM) values. */
+/** Thresholds for one project: global (Director) values overridden by project (PM) values. */
 final class Thresholds
 {
     /** @param array<string, float> $values */

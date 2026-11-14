@@ -1,6 +1,6 @@
 {
     "name": "lubie/monitoring-dashboard",
-    "description": "Lubie Construction Works real-time project monitoring dashboard (MSc prototype)",
+    "description": "Lubie Construction Works real-time project monitoring dashboard",
     "type": "project",
     "license": "proprietary",
     "require": {

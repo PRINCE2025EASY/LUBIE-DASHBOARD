@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-/* Front controller: the only PHP entry point under the web root. */
+/* Front controller: PHP entry point. */
 require dirname(__DIR__) . '/config/bootstrap.php';
 
 use Lubie\Http\Request;

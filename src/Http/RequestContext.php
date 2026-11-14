@@ -7,7 +7,6 @@ namespace Lubie\Http;
 use Lubie\Security\AuthUser;
 use Lubie\Security\Session;
 
-/** Per-request state shared with controllers: request, session, current user. */
 final class RequestContext
 {
     public function __construct(

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Lubie\Sms;
 
-/** Adapter interface for SMS providers (FR-22). Credentials come only from environment variables. */
 interface SmsGateway
 {
     public function name(): string;

@@ -1,4 +1,4 @@
-// Login page: posts credentials, never a role (the server decides the dashboard).
+// Login page: (the server decides the dashboard).
 import { post } from './lib/api.js';
 const f = document.getElementById('login-form');
 if (f) {

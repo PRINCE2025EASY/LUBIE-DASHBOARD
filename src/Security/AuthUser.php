@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Lubie\Security;
 
-/** The authenticated user, loaded from trusted database records on every request. */
 final class AuthUser
 {
     public function __construct(

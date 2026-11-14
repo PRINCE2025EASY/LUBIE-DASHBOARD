@@ -12,7 +12,7 @@ use Lubie\Domain\ProjectSnapshot;
 use Lubie\Services\KpiService;
 use Lubie\Support\Money;
 
-/** A9: certificate not fully paid after submitted date + project payment period. */
+/** Certificate not fully paid after submitted date + project payment period. */
 final class A09CertificateOverdue implements AlertRule
 {
     public function evaluate(ProjectSnapshot $s, KpiResult $k, Thresholds $t, string $today): array

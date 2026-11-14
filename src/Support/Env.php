@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace Lubie\Support;
 
-/**
- * Reads configuration from real environment variables first, then from a local
- * .env file (XAMPP only). Production hosts inject variables, so .env is optional.
- */
+
 final class Env
 {
     /** @var array<string, string> */
@@ -55,7 +52,7 @@ final class Env
         return in_array(strtolower($v), ['1', 'true', 'yes', 'on'], true);
     }
 
-    /** For tests only. */
+  
     public static function set(string $key, string $value): void
     {
         self::$fileValues[$key] = $value;

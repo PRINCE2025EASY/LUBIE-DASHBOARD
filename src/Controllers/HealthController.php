@@ -8,7 +8,7 @@ use Lubie\Db\Database;
 use Lubie\Http\Request;
 use Lubie\Http\Response;
 
-/** /health: liveness and DB reachability only. Exposes no versions, paths or secrets. */
+/** /health: liveness and DB reachability. */
 final class HealthController extends BaseController
 {
     public function health(Request $r): Response

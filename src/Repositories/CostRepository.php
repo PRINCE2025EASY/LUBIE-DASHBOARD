@@ -6,7 +6,7 @@ namespace Lubie\Repositories;
 
 use Lubie\Db\Database;
 
-/** Budgets (versions), expenditure, payment certificates and payments. */
+/** Budgets, expenditure, payment certificates and payments. */
 final class CostRepository
 {
     public function __construct(private Database $db)

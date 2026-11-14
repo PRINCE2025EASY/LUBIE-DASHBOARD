@@ -1,5 +1,5 @@
 // Director views: cross-project portfolio, project view (read-only), approvals of budget
-// revisions and threshold proposals, global thresholds. No audit trail (decision 21/10/2026).
+
 import { get, post, put } from '../lib/api.js';
 import { h, clear, card, table, fmtMoney, fmtPct, fmtNum, fmtDate, fmtDateTime, spinner, badge, icon } from '../lib/dom.js';
 import { projectOverview, pageHeader, tabs, watch, reportsCard, statusLabel } from './common.js';

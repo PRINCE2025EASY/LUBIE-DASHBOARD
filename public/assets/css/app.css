@@ -1,6 +1,4 @@
-/* Lubie dashboard styles. Bootstrap 5.3 does the heavy lifting; this file adds touch
-   targets, chart sizing and a few dashboard parts. Works in light and dark themes
-   because it uses Bootstrap's CSS variables only. */
+/* Lubie dashboard system styles.*/
 
 :root {
   --lubie-brand: #081768;      /* company logo navy */
@@ -19,7 +17,7 @@ body { min-height: 100vh; background: var(--bs-body-bg); }
 .project-tabs { overflow-x: auto; flex-wrap: nowrap; white-space: nowrap; scrollbar-width: thin; }
 .project-tabs .nav-link { padding: .6rem .9rem; }
 
-/* Touch targets: at least 44 x 44 px for site use on phones (NFR usability). */
+/* Touch targets: at least 44 x 44 px for site use on phones. */
 .btn-touch, .app-nav .btn, .project-tabs .nav-link { min-height: 44px; }
 .btn-touch { min-width: 44px; display: inline-flex; align-items: center; justify-content: center; gap: .25rem; }
 @media (pointer: coarse) {

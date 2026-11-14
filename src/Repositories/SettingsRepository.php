@@ -7,7 +7,7 @@ namespace Lubie\Repositories;
 use Lubie\Alerts\Thresholds;
 use Lubie\Db\Database;
 
-/** System settings (NFR-10) and alert thresholds (FR-21). */
+/** System settings and alert thresholds. */
 final class SettingsRepository
 {
     /** @var array<string, string>|null */

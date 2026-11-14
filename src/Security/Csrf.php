@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Lubie\Security;
 
-/** Synchroniser-token CSRF protection; token lives in the server-side session. */
 final class Csrf
 {
     public static function token(Session $s): string

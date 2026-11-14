@@ -10,7 +10,7 @@ use Lubie\Alerts\Thresholds;
 use Lubie\Domain\KpiResult;
 use Lubie\Domain\ProjectSnapshot;
 
-/** A14: equipment reported faulty. */
+/** Equipment reported faulty. */
 final class A14EquipmentFaulty implements AlertRule
 {
     public function evaluate(ProjectSnapshot $s, KpiResult $k, Thresholds $t, string $today): array

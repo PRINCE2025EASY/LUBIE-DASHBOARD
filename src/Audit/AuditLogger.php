@@ -7,10 +7,6 @@ namespace Lubie\Audit;
 use Lubie\Db\Database;
 use Lubie\Support\Clock;
 
-/**
- * Append-only audit trail (FR-25). Removes secrets before writing. The application's
- * database account has INSERT and SELECT only on audit_logs, so rows cannot be changed.
- */
 final class AuditLogger
 {
     private const SECRET_KEYS = ['password', 'password_hash', 'new_password', 'current_password', 'token', 'csrf', 'api_key', 'secret', 'data'];
@@ -53,7 +49,6 @@ final class AuditLogger
         );
     }
 
-    /** Only changed fields are kept when both versions are given. */
     public function logChange(int $userId, string $action, string $entityType, int $entityId, array $old, array $new): void
     {
         $changedOld = [];

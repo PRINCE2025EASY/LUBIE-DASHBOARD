@@ -1,6 +1,5 @@
 // Administrator views: system summary, users, settings, audit trail, backups, and project
-// set-up and team assignments. No budgets, expenditure or payments (financial detail is not
-// an automatic Administrator right).
+// set-up and team assignments. No budgets, expenditure or payments.
 import { api, get, post, patch, del, formData, showErrors, showOk } from '../lib/api.js';
 import { h, clear, card, table, field, select, fmtDateTime, spinner, badge, icon } from '../lib/dom.js';
 import { pageHeader, statusLabel } from './common.js';

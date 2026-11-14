@@ -6,7 +6,6 @@ namespace Lubie\Db;
 
 use RuntimeException;
 
-/** Schema creation, migrations and test-database rebuild (used by bin/console.php and tests). */
 final class Migrator
 {
     public function __construct(private Database $db, private string $root)
@@ -42,7 +41,7 @@ final class Migrator
         return $msgs;
     }
 
-    /** Drop every table in a *_test database, then rebuild schema, reference data and demo data. */
+    
     public function resetTestDatabase(): void
     {
         if (!preg_match('/_test$/', (string) $this->db->value('SELECT DATABASE()'))) {

@@ -6,11 +6,6 @@ namespace Lubie\Db;
 
 use RuntimeException;
 
-/**
- * Splits a .sql file into single statements and runs them one by one, so a failure
- * stops at the exact statement (PDO multi-statement exec can hide later errors).
- * Handles quotes, backticks, line and block comments. No DELIMITER support (none used).
- */
 final class SqlScript
 {
     /** @return list<string> */

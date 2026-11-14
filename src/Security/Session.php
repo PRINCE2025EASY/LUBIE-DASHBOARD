@@ -7,10 +7,7 @@ namespace Lubie\Security;
 use Lubie\Support\Clock;
 use Lubie\Support\Env;
 
-/**
- * Per-request session backed by DbSessionHandler. Data is JSON (never unserialize()).
- * Enforces idle timeout and absolute lifetime; supports ID regeneration at login.
- */
+
 final class Session
 {
     private string $id = '';
@@ -88,7 +85,7 @@ final class Session
         $this->dirty = true;
     }
 
-    /** New ID, same data (session fixation protection at login and privilege change). */
+    /** New ID, same data */
     public function regenerate(): void
     {
         if ($this->id !== '') {

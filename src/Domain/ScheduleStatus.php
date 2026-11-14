@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Lubie\Domain;
 
-/** Activity schedule status (Design Specification s9.1). Derived, never stored. */
+
 enum ScheduleStatus: string
 {
     case NotStarted = 'not_started';
@@ -26,7 +26,6 @@ enum ScheduleStatus: string
         };
     }
 
-    /** ok | warning | critical (shown as colour plus text plus icon). */
     public function tone(): string
     {
         return match ($this) {

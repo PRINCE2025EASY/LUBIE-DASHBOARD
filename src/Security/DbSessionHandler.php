@@ -8,11 +8,7 @@ use Lubie\Db\Database;
 use Lubie\Support\Clock;
 use SessionHandlerInterface;
 
-/**
- * Database session storage so the web tier is stateless (container restarts and
- * free-tier spin-down keep users logged in). Implements PHP's SessionHandlerInterface;
- * the Session class drives it directly so the kernel stays testable without globals.
- */
+
 final class DbSessionHandler implements SessionHandlerInterface
 {
     private ?int $userId = null;

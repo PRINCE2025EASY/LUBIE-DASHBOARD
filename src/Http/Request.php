@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Lubie\Http;
 
-/** Immutable view of an HTTP request. Built from globals in production, by hand in tests. */
 final class Request
 {
     /** @var array<string, string> route parameters set by the router */
@@ -63,9 +62,8 @@ final class Request
     }
 
     /**
-     * Client IP behind a host's proxy (Render, Koyeb). With TRUSTED_PROXY_HOPS = n, take the n-th
-     * X-Forwarded-For entry from the right: entries further left are client-supplied and can be faked.
-     * 0 (default, XAMPP) uses REMOTE_ADDR only.
+     * Client IP behind a host's proxy. With TRUSTED_PROXY_HOPS = n, take the n-th
+     * X-Forwarded-For entry from the right. 0 (default, XAMPP) uses REMOTE_ADDR only.
      * @param array<string, string> $headers
      */
     public static function clientIp(array $headers, string $remote, int $hops): string

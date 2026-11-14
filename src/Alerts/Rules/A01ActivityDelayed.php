@@ -10,7 +10,7 @@ use Lubie\Alerts\Thresholds;
 use Lubie\Domain\KpiResult;
 use Lubie\Domain\ProjectSnapshot;
 
-/** A1: today after planned finish and under 100 %. SMS level when the delay exceeds delay_sms_days. */
+
 final class A01ActivityDelayed implements AlertRule
 {
     public function evaluate(ProjectSnapshot $s, KpiResult $k, Thresholds $t, string $today): array

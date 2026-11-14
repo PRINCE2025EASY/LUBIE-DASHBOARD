@@ -1,5 +1,5 @@
-// Near-real-time refresh (FR-24): asks /changes for a change counter every interval while the
-// tab is visible; full data are fetched only when something changed. Backoff on failure.
+// Refresh: asks /changes for a change counter every interval while the
+// tab is visible; full data are fetched when something changed. Backoff on failure.
 import { get } from './api.js';
 
 export function startPolling({ projectId = null, seq = -1, interval = 60, onChange, onStatus }) {

@@ -9,8 +9,7 @@ use Lubie\Db\Database;
 use Lubie\Http\HttpException;
 
 /**
- * Complete mediation: role permission (matrix in config/permissions.php) plus project
- * scope on every ID. Deny by default; every refusal is audit-logged.
+ * Role permission plus project
  */
 final class Authorizer
 {
@@ -51,11 +50,7 @@ final class Authorizer
         );
     }
 
-    /**
-     * Project scope. Director reads every project; Administrator only for set-up purposes
-     * (project details and assignments, $adminSetup = true); everyone else must be assigned.
-     * Unknown or out-of-scope IDs return 404 so existence does not leak.
-     */
+    
     public function requireProject(AuthUser $u, int $projectId, bool $adminSetup = false): void
     {
         $exists = (bool) $this->db->value('SELECT 1 FROM projects WHERE id = ?', [$projectId]);
@@ -70,7 +65,7 @@ final class Authorizer
         }
     }
 
-    /** Director may only read; write operations must use a role permission that excludes Director. */
+    /** Director read; write operations must use a role permission that excludes Director. */
     public function projectIdFor(string $table, int $id): int
     {
         $sql = match ($table) {

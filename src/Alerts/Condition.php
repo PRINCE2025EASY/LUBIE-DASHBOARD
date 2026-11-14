@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Lubie\Alerts;
 
-/** A rule result that is currently true. The dedup key identifies it while it stays open. */
 final class Condition
 {
     /**

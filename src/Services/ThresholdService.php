@@ -11,10 +11,6 @@ use Lubie\Security\AuthUser;
 use Lubie\Security\Authorizer;
 use Lubie\Support\Clock;
 
-/**
- * Two-level thresholds (FR-21): Director sets global values and limits, PM sets project
- * values inside the limits, QS proposes values for Director approval.
- */
 final class ThresholdService
 {
     public const KEYS = ['budget_warning_pct', 'budget_overrun_sms_pct', 'cpi_min', 'spi_min', 'milestone_due_days', 'stale_data_days', 'delay_sms_days'];
