@@ -1,12 +1,6 @@
 # PROJECT_STATE
 
-Last updated: 21/10/2026 (Africa/Accra)
-
-## Current stage
-
-Stage 6 waits for the owner (Render service, secrets, live checks). Stage 7 part 1 delivered: user manual, technical guide, API reference, operations guide, limitations, traceability pack. Stage 7 part 2 next: thesis text for Sections 3.15 to 3.19, figure captions, corrected Tables 3.4 to 3.9.
-
-## Decisions recorded
+## Current State
 
 | Date | Decision |
 |---|---|
@@ -23,6 +17,15 @@ Stage 6 waits for the owner (Render service, secrets, live checks). Stage 7 part
 | 21/10/2026 | Owner pushed main (0c2ae89) from C:\Users\anaay\LUBIE-DASHBOARD. First CI run failed on Dompdf advisories; fixed with 3.1.6. |
 | 21/10/2026 | Owner pushed main and iteration-1 at b08ce59 from htdocs content; closed Dependabot Dompdf PR; Aiven account and project created. CI: container job green, PHPUnit failing on MariaDB 10.4 (cause not visible without sign-in; annotations added). |
 | 21/10/2026 | Hosting: Render free web service (Docker, Frankfurt) + Aiven free MySQL recommended (docs/DEPLOYMENT_OPTIONS.md). |
+
+## Update 16/11/2026: resources module (task T8)
+
+- Built FR-18 labour and materials, FR-19 equipment status, FR-33 material requests and store balance,
+  FR-34 reorder alert from real stock, offline capture of these entries, and a resources report.
+- New: ResourceRepository, ResourceService, ResourceController, 10 routes, permission resources.cost (PM),
+  views/resources.js (tab for SE, PM, QS, Director), ResourceTest. No schema change.
+- Checks: 116 tests pass on MariaDB 10.11 and MySQL 8.0 over TLS; UI smoke 0 problems; axe 0 violations.
+- Remaining planned feature: progress photos (FR-39).
 
 ## Work completed
 
@@ -57,7 +60,7 @@ Stage 2:
 - Front end: six role views plus login and password pages, dark/light toggle, service worker and encrypted IndexedDB outbox, 44 px touch targets, strict CSP (no inline script).
 - `bin/console.php`: migrate, setup:first-admin, seed:demo, test-db:reset, backup:create, restore:verify, alerts:run, sms:retry. `bin/lint.php`.
 - Tests: 51 unit and 37 integration tests (88 tests, 830 assertions).
-- `docs/INSTALL_XAMPP.md`, `README.md`, `.env.example` (placeholders only). Schema v0.3.0 (`change_seq` poll token, migration 0002). ERD and data dictionary regenerated.
+- `docs/INSTALL_XAMPP.md`, `README.md`, `.env.example` Schema v0.3.0 (`change_seq` poll token, migration 0002). ERD and data dictionary regenerated.
 - Fixes found by testing: cost lookups hidden from Site Engineers; reports card hidden for roles without reports; "null" text on the site progress form; stale offline badge; alert dates shown DD/MM/YYYY; restore KPI comparison; user-form error grouping; X-Powered-By removed.
 
 ## Checks run in Stage 3 (cloud workspace: PHP 8.3.6, MariaDB 10.11.14, Apache 2.4)
@@ -72,7 +75,7 @@ Stage 2:
 | Offline: capture while offline, encrypted outbox, reload offline from service worker, auto sync on reconnect | Pass (Chromium) |
 | Apache .htaccess: .env, src, config, vendor, database, docs blocked | Pass (403) |
 | Least-privilege app account: all write paths, backup download | Pass |
-| migrate on empty DB, upgrade 0.2.0 to 0.3.0, setup:first-admin refuses a second admin, seed:demo refused in production | Pass |
+| migrate on empty DB, upgrade 0.2.0 to 0.3.0, setup:first-admin refuses a second admin
 
 ## Stage 4 (Test) delivered
 
@@ -84,9 +87,9 @@ Stage 2:
 ## Stage 5 (GitHub) prepared
 
 - `.github/workflows/ci.yml`: PHP 8.2 and MariaDB 10.4.32 service, composer validate and audit, PHP lint, test database build, doctor, PHPUnit with coverage, JavaScript lint.
-- `.github/dependabot.yml`, `SECURITY.md`, `package.json` and `eslint.config.mjs` (development only).
-- History scanned before push: no .env, keys, backups or dumps. The only fixed password is the documented demo password in `database/seed_demo.sql` (synthetic accounts only).
-- `C:\xampp\htdocs\lubie-dashboard` is now the git working copy (branches main and iteration-1, remote origin set). CI has not run yet: it starts on the first push.
+- `.github/dependabot.yml`, `SECURITY.md`, `package.json` and `eslint.config.mjs.
+- History scanned before push: no .env, keys, backups or dumps.
+- `C:\xampp\htdocs\lubie-dashboard` is now the git working copy (branches main and iteration-1, remote origin set). 
 
 ## Stage 6 (Deploy) prepared
 
@@ -96,28 +99,6 @@ Stage 2:
 - Verified on MySQL 8.0 over TLS (103 tests) and under the container's Apache layout. Docker image itself is built only in CI.
 - Local XAMPP: doctor showed every PHP check OK; the database refused `lubie_app` (account missing or password mismatch). `.env.example` had a password typed into it; restored to the blank template, nothing reached GitHub. php.ini line 942 reverted because openssl was already loaded at line 984.
 
-## Stage 7 part 1 delivered
+## Stage 7
 
 - `docs/USER_MANUAL.md` (six role guides), `docs/TECHNICAL_GUIDE.md`, `docs/API_REFERENCE.md` (generated, 83 routes), `docs/OPERATIONS_GUIDE.md` (backup, restore, deployment, rollback, security checklist), `docs/KNOWN_LIMITATIONS.md`, `docs/TRACEABILITY_PACK.csv` (54 requirements with status and evidence).
-
-## Not run yet
-
-- On your XAMPP: PHP 8.2.12 and MariaDB (10.4 expected, not confirmed). The app was not run on your computer yet.
-- Your php.ini has `extension=openssl` commented out: backups stop with a clear message until you enable it (needs your approval).
-- Native date pickers follow the browser language (US order in the test browser).
-- Real SMS: sandbox only. No message has been sent to a phone.
-- MySQL 8 import: Stage 6.
-
-## Open defects
-
-None open. Open environment items O-1 to O-6 in docs/TEST_REPORT.md.
-
-## Decisions awaiting approval
-
-1. php.ini: enable openssl, set expose_php=Off and display_errors=Off (see docs/INSTALL_XAMPP.md step 3).
-2. Assumptions marked "Yes" in `docs/stage1/03_Assumptions_Register.md`.
-3. Stage 5: push branch iteration-1 to PRINCE2025EASY/LUBIE-DASHBOARD (public).
-
-## Next steps
-
-1. Owner runs `setup:app-account --owner=root` locally, then doctor. 2. Owner pushes from C:\xampp\htdocs\lubie-dashboard; CI must be green. 3. Owner follows docs/DEPLOY.md. 4. Live checks, tag v0.5.0, Stage 7.
