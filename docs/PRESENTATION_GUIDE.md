@@ -51,8 +51,12 @@ All use the password chosen during set-up.
 1. **Login page**: one login for every role; company photo and logo; show the password eye.
 2. **se1** (phone view): My activities > Update progress on R05 > 40%, delay reason "Rain or
    flooding" > Submit. Point out: no money is visible to site staff.
+   Then Materials and labour (task T8): Attendance for General labourers; Used for cement (note the
+   amber "low" badge); Request chippings for next week; Status of the roller > Faulty.
 3. **pm1**: Approvals > approve the entry; Overview shows the new completion %, SPI, CPI, the
    planned-versus-earned chart and the budget chart. Open a KPI card's (i) to show the formula.
+   Resources: approve the chippings request, mark it Delivered (the store balance rises), and show
+   the bell: low cement (A10) and faulty equipment (A14) alerts.
 4. **qs1**: Expenditure > record a payment with the confirmation tick; Valuations; Budget.
 5. **director**: Portfolio of all three projects; Approvals > approve the waiting budget revision.
 6. **client2**: one summary page with progress, milestones and payments; download the PDF.

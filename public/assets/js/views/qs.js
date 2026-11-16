@@ -1,14 +1,16 @@
 // Quantity Surveyor views: cost dashboard, budget versions and revision requests,
 // expenditure (record, list, void), valuation certificates and payments, threshold proposals.
+import { resourcesView } from './resources.js';
 import { get, post, formData, showErrors } from '../lib/api.js';
 import { h, clear, card, table, field, select, fmtMoney, fmtPct, fmtNum, fmtDate, fmtDateTime, todayIso, spinner, badge } from '../lib/dom.js';
 import { projectList, projectOverview, pageHeader, tabs, watch, reportsCard } from './common.js';
-import { toast } from '../app.js';
+import { toast, state } from '../app.js';
 
-const qsTabs = (id, active) => tabs(id, active, [['cost', 'Cost'], ['overview', 'Overview'], ['expenditure', 'Expenditure'], ['certificates', 'Valuations'], ['budget', 'Budget'], ['thresholds', 'Thresholds']]);
+const qsTabs = (id, active) => tabs(id, active, [['cost', 'Cost'], ['overview', 'Overview'], ['expenditure', 'Expenditure'], ['certificates', 'Valuations'], ['budget', 'Budget'], ['resources', 'Resources'], ['thresholds', 'Thresholds']]);
 const BUDGET_TONE = { approved: ['ok', 'Approved (current)'], pending: ['high', 'Waiting for Director'], draft: ['information', 'Draft'], rejected: ['warning', 'Rejected'], superseded: ['information', 'Superseded'] };
 
 export const routes = {
+  '/project/:id/resources': (app, id) => resourcesView(app, id, { tabs: qsTabs, me: state.me }),
   '/': app => projectList(app, { onOpen: p => `#/project/${p.id}/cost` }),
   '/project/:id/cost': cost,
   '/project/:id/overview': (app, id) => projectOverview(app, id, { tabsFor: qsTabs }),

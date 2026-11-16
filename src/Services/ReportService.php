@@ -9,6 +9,7 @@ use Lubie\Db\Database;
 use Lubie\Http\HttpException;
 use Lubie\Http\Response;
 use Lubie\Repositories\CostRepository;
+use Lubie\Repositories\ResourceRepository;
 use Lubie\Repositories\ProjectSnapshotRepository;
 use Lubie\Reports\CsvWriter;
 use Lubie\Reports\PdfRenderer;
@@ -33,6 +34,7 @@ final class ReportService
         'cost-variance' => ['director', 'pm', 'qs'],
         'payments' => ['director', 'pm', 'qs'],
         'alerts' => ['director', 'pm', 'qs'],
+        'resources' => ['director', 'pm', 'qs'],
         'client-summary' => ['director', 'pm', 'qs', 'client'],
         'audit' => ['admin'],
     ];
@@ -41,6 +43,7 @@ final class ReportService
         private Database $db,
         private ProjectSnapshotRepository $snapshots,
         private CostRepository $cost,
+        private ResourceRepository $resources,
         private KpiService $kpi,
         private DashboardService $dash,
         private Authorizer $authz,
@@ -143,6 +146,21 @@ final class ReportService
                 $rows = array_map(static fn ($n) => [self::dt((string) $n['created_at']), $n['rule_code'], $n['severity'], $n['title'], $n['cleared_at'] ? self::dt((string) $n['cleared_at']) : 'open'],
                     $this->db->all('SELECT * FROM notifications WHERE project_id = ? ORDER BY created_at DESC LIMIT 2000', [$projectId]));
                 return ['Alerts', ['Raised', 'Rule', 'Severity', 'Alert', 'Cleared'], $rows, $head];
+            case 'resources':
+                $labels = ['material' => 'Material', 'labour' => 'Labour', 'equipment' => 'Equipment'];
+                $rows = array_map(static function ($r) use ($labels, $u) {
+                    $x = Presenter::resource($r, $u->role);
+                    $qty = match ($x['category']) {
+                        'material' => [self::qty($x['received']), self::qty($x['used']), self::qty($x['balance']), $x['reorder_level'] === null ? '' : self::qty($x['reorder_level'])],
+                        'labour' => ['', self::qty($x['person_days']) . ' person-days', '', ''],
+                        default => ['', self::qty($x['hours']) . ' hours', '', ''],
+                    };
+                    $state = $x['category'] === 'equipment' ? str_replace('_', ' ', (string) $x['equipment_status']) : ($x['low'] ? 'Below reorder level' : '');
+                    return [$labels[$x['category']], $x['name'], $x['unit'], ...$qty, $state, $x['unit_rate'] ?? '', $x['value_used'] ?? ''];
+                }, $this->resources->forProject((int) $projectId, $today));
+                $req = $this->resources->openRequestCount((int) $projectId);
+                return ['Labour, materials and equipment', ['Type', 'Item', 'Unit', 'Received', 'Used', 'Balance', 'Reorder level', 'State', 'Rate (GH₵)', 'Value used (GH₵)'], $rows,
+                    $head + ['Open material requests' => (string) $req]];
             case 'client-summary':
                 $c = $this->dash->clientSummary($u, (int) $projectId);
                 $sum = ['Project' => "{$c['project']['code']} {$c['project']['name']}", 'Overall progress' => self::pct($c['completion_pct']),
@@ -153,6 +171,11 @@ final class ReportService
                 return ['Client progress and payment summary', ['Milestone', 'Due', 'Achieved', 'State'], $rows, $sum];
         }
         throw HttpException::notFound();
+    }
+
+    private static function qty(float $v): string
+    {
+        return rtrim(rtrim(number_format($v, 2, '.', ','), '0'), '.');
     }
 
     private static function d(string $iso): string

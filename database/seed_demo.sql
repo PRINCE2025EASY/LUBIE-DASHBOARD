@@ -1,4 +1,4 @@
--- Demo password for every demo account (local demonstration only). Tests read the next line.
+-- Demo password for every demo account. Tests read the next line.
 --   Demo-Lubie-2026!
 SET NAMES utf8mb4;
 SET @t  = CURDATE();
@@ -20,7 +20,7 @@ INSERT INTO users (id, role_id, username, full_name, phone_e164, password_hash, 
  (12, 6, 'client3_demo',  'Client (Education)',  '+233200000012', @pw, 0, 'active'),
  (13, 5, 'se4_demo',      'SE Deactivated',      '+233200000013', @pw, 0, 'deactivated');
 
--- ---------------- Projects mirroring P1, P2, P3 in type and size -----
+-- ---------------- Projects: P1, P2, P3 in type and size -----
 INSERT INTO projects (id, code, name, project_type, location, client_name, contract_sum,
                       planned_start, planned_finish, actual_start, actual_finish, payment_period_days, status, is_demo, created_by) VALUES
  (1, 'DEMO-P1', 'Feeder road and drainage (ongoing)', 'Road and drainage', 'Site, Wa Municipal', 'Municipal Assembly', 2650000.00,

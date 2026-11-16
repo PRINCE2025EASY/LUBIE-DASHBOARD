@@ -31,6 +31,17 @@ Lubie Construction Works project monitoring dashboard. Version 0.5. All screens 
    itself when the connection returns. A blue notice at the top of My activities counts waiting entries; tap View to see them.
 6. Work stoppage or safety incident: choose it as the delay reason. Management gets an urgent alert.
 7. Add activity: for work not yet listed. Cost is set by the Project Manager.
+8. Materials and labour tab (task T8):
+   - Materials: tap Received when a delivery arrives (type the delivery note in Remarks) and Used
+     when material goes into the work. "In store" is received minus used. An amber badge means the
+     balance is below the reorder level and the Project Manager has been alerted.
+   - Using more than is in store shows a warning; check the count, then confirm only if it is right.
+   - Request: ask the Project Manager for more material, with the date you need it. You can cancel
+     your request until it is approved. When it arrives, tap Delivered; the quantity is added to the store.
+   - Labour: tap Attendance and type the number of workers present today.
+   - Equipment: tap Hours for hours worked, or Status to report Faulty, Idle, Off site or Working.
+     Faulty alerts the Project Manager at once.
+   - All of these also work without signal and are sent later, like progress.
 
 You do not see budgets, spending, rates or supplier prices. This is by design.
 
@@ -43,6 +54,9 @@ You do not see budgets, spending, rates or supplier prices. This is by design.
 - Milestones: due dates and achieved dates. Overdue milestones appear to the client as a notice.
 - Cost: budget, spending and earned value (read-only). Request a budget revision with a reason;
   the Director decides.
+- Resources: materials with store balance, value used and reorder level; labour attendance and
+  cost; equipment status and hours. Set unit prices, daily rates and hourly rates (only you can),
+  approve or cancel material requests (not your own), mark deliveries, archive items no longer used.
 - Team: add or remove Site Engineers, Quantity Surveyors and the client for the project.
 - Settings: project alert thresholds inside the Director's limits, project status
   (planning, active, on hold, completed, archived).
@@ -57,6 +71,8 @@ You do not see budgets, spending, rates or supplier prices. This is by design.
   outstanding balance is refused. Certificates unpaid after the payment period raise an alert.
 - Budget: request a revision; the Director approves or rejects it. You cannot approve your own.
 - Thresholds: propose a different alert threshold; the Director decides.
+- Resources: read-only view of materials, labour and equipment with rates and values, and the
+  Labour, materials and equipment report (PDF or CSV).
 
 ## Director: overview
 
@@ -65,7 +81,7 @@ You do not see budgets, spending, rates or supplier prices. This is by design.
   together.
 - Approvals: budget revisions and threshold proposals waiting for you. A rejection needs a note.
 - Company thresholds: set company-wide values and the limits Project Managers must stay within.
-- Open any project for its overview and cost and payments.
+- Open any project for its overview, cost and payments, and resources (stock, labour, equipment).
 - SMS (when switched on) reaches you for critical events: long delays, overruns above the
   limit, stoppages, revisions waiting.
 

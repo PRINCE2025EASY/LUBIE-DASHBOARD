@@ -1,15 +1,17 @@
 // Project Manager views: projects, overview, approvals, activities, milestones, team,
 // project thresholds, project set-up and status. Budgets/cost are read-only plus revision request.
+import { resourcesView } from './resources.js';
 import { get, post, patch, put, del, formData, showErrors } from '../lib/api.js';
 import { h, clear, card, table, field, select, scheduleBadge, fmtMoney, fmtPct, fmtDate, spinner, badge, icon } from '../lib/dom.js';
 import { projectList, projectOverview, pageHeader, tabs, watch, statusLabel } from './common.js';
-import { toast } from '../app.js';
+import { toast, state } from '../app.js';
 import { budgetsCard, requestRevisionForm } from './qs.js';
 
 const pmTabs = (id, active) => tabs(id, active, [['overview', 'Overview'], ['approvals', 'Approvals'], ['activities', 'Activities'], ['milestones', 'Milestones'],
-  ['progress', 'Record progress'], ['cost', 'Cost'], ['team', 'Team'], ['settings', 'Settings']]);
+  ['progress', 'Record progress'], ['cost', 'Cost'], ['resources', 'Resources'], ['team', 'Team'], ['settings', 'Settings']]);
 
 export const routes = {
+  '/project/:id/resources': (app, id) => resourcesView(app, id, { tabs: pmTabs, me: state.me }),
   '/': app => projectList(app, { actions: [h('a', { class: 'btn btn-primary', href: '#/new-project' }, icon('plus-lg'), ' New project')] }),
   '/new-project': app => projectForm(app, null),
   '/project/:id/overview': (app, id) => projectOverview(app, id, { tabsFor: pmTabs }),

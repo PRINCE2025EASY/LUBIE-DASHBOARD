@@ -76,6 +76,16 @@ Project scope is checked inside the services: an ID outside the user's projects 
 | POST | `/api/v1/projects/{id}/certificates` | CostController::createCertificate | QS (`certificates.record`) |  |
 | POST | `/api/v1/certificates/{id}/certify` | CostController::certify | QS (`certificates.record`) |  |
 | POST | `/api/v1/certificates/{id}/payments` | CostController::pay | QS (`certificates.record`) |  |
+| GET | `/api/v1/projects/{id}/resources` | ResourceController::index | Director, PM, QS, Site (`resources.view`) |  |
+| POST | `/api/v1/projects/{id}/resources` | ResourceController::store | PM, Site (`resources.record`) |  |
+| PATCH | `/api/v1/resources/{id}` | ResourceController::update | PM, Site (`resources.record`) |  |
+| GET | `/api/v1/resources/{id}/usage` | ResourceController::history | Director, PM, QS, Site (`resources.view`) |  |
+| POST | `/api/v1/resources/{id}/usage` | ResourceController::usage | PM, Site (`resources.record`) |  |
+| POST | `/api/v1/resources/{id}/equipment-status` | ResourceController::equipmentStatus | PM, Site (`resources.record`) |  |
+| POST | `/api/v1/projects/{id}/material-requests` | ResourceController::createRequest | PM, Site (`resources.record`) |  |
+| POST | `/api/v1/material-requests/{id}/approve` | ResourceController::approveRequest | PM (`requests.decide`) |  |
+| POST | `/api/v1/material-requests/{id}/cancel` | ResourceController::cancelRequest | PM, Site (`resources.record`) |  |
+| POST | `/api/v1/material-requests/{id}/deliver` | ResourceController::deliverRequest | PM, Site (`resources.record`) |  |
 | GET | `/api/v1/projects/{id}/dashboard` | DashboardController::project | Director, PM, QS, Site (`dashboard.project`) |  |
 | GET | `/api/v1/dashboard/portfolio` | DashboardController::portfolio | Director (`dashboard.portfolio`) |  |
 | GET | `/api/v1/client/summary` | DashboardController::client | Client (`client.summary`) |  |
@@ -92,4 +102,4 @@ Project scope is checked inside the services: an ID outside the user's projects 
 | GET | `/api/v1/reports` | ReportController::types | Admin, Director, PM, QS, Client (`reports.export`) |  |
 | GET | `/api/v1/reports/{type}` | ReportController::export | Admin, Director, PM, QS, Client (`reports.export`) |  |
 
-83 routes.
+93 routes.

@@ -1,6 +1,6 @@
 # Known limitations, open items and future enhancements
 
-State on 21/10/2026. Evidence for each item is in `docs/TEST_REPORT.md` and
+State on 16/11/2026. Evidence for each item is in `docs/TEST_REPORT.md` and
 `docs/TRACEABILITY_PACK.csv`.
 
 ## Limitations of this version
@@ -14,13 +14,12 @@ State on 21/10/2026. Evidence for each item is in `docs/TEST_REPORT.md` and
    stale data but cannot prevent it.
 4. SMS depends on a paid gateway and the mobile network. Only the sandbox was tested. Delivery
    to real phones is unproven until a provider account is configured and tested.
-5. Offline mode covers progress entries only, tested in Chromium. Labour, material and
-   equipment entries are not yet queued offline. iPhone Safari behaviour is untested.
+5. Offline capture covers progress, labour attendance, materials received and used, equipment hours
+   and equipment status, tested in Chromium. iPhone Safari behaviour is untested.
 6. Free hosting sleeps. The free web service wakes in about a minute after 15 idle minutes, and
    the free database has 1 GB of storage and no service-level agreement.
-7. Not yet built (planned): labour and materials (FR-18), material requests (FR-33), equipment
-   status entry (FR-19), reorder alerts from real stock data (FR-34), progress photos (FR-39).
-   Their tables and alert rules exist; the screens do not.
+7. Not yet built (planned): progress photos (FR-39). Labour, materials, equipment, material requests
+   and the reorder alert were completed on 16/11/2026 (task T8).
 8. Accessibility checked by automated scan only; no screen-reader or 200 % zoom session yet.
 9. Usability evidence pending: sessions T1 to T5 with the 15 participants are run by the owner.
 10. MariaDB 10.4.32 is exercised by CI on GitHub; local runs used MariaDB 10.11 and MySQL 8.0.
@@ -40,7 +39,7 @@ No known open code defects other than O-8, which is under investigation.
 
 ## Future enhancements
 
-- Finish Iteration 2 and 3 modules (labour, materials, requests, equipment, photos) and queue them offline.
+- Progress photos (FR-39), compressed in the browser and queued offline.
 - Paid hosting tier to remove the cold start; scheduled daily backups once the repository is private.
 - Real SMS provider with delivery reports; optional e-mail digest.
 - Screen-reader and field usability study on site, with low-end Android phones.

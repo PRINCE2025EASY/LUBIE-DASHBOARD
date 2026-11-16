@@ -40,6 +40,37 @@ final class Presenter
         return $out;
     }
 
+    /**
+     * One resource with its totals. Site engineers never receive the unit rate or any value;
+     * clients never reach resources at all (no permission).
+     * @param array<string, mixed> $r
+     */
+    public static function resource(array $r, string $role): array
+    {
+        $num = static fn ($v) => $v === null ? null : (float) $v;
+        $received = (float) $r['received'];
+        $used = (float) $r['used'];
+        $out = [
+            'id' => (int) $r['id'], 'category' => (string) $r['category'], 'name' => (string) $r['name'], 'unit' => (string) $r['unit'],
+            'planned_qty' => $num($r['planned_qty']), 'reorder_level' => $num($r['reorder_level']),
+            'equipment_status' => $r['equipment_status'], 'status' => (string) $r['status'],
+            'received' => $received, 'used' => $used, 'balance' => round($received - $used, 2),
+            'today_qty' => (float) $r['today_qty'], 'week_qty' => (float) $r['week_qty'], 'person_days' => (float) $r['person_days'],
+            'hours' => (float) $r['hours'], 'last_entry' => $r['last_entry'],
+        ];
+        $out['low'] = $out['category'] === 'material' && $out['reorder_level'] !== null && $out['balance'] < $out['reorder_level'];
+        if (self::seesMoney($role)) {
+            $rate = $r['unit_rate'] !== null ? (int) Money::toPesewas((string) $r['unit_rate']) : null;
+            $value = static fn (float $q) => $rate === null ? null : Money::toString(Money::mulDiv($rate, (int) round($q * 100), 100));
+            $out['unit_rate'] = $rate === null ? null : Money::toString($rate);
+            $out['value_used'] = match ($out['category']) {
+                'material' => $value($used), 'labour' => $value($out['person_days']), default => $value($out['hours']),
+            };
+            $out['value_received'] = $out['category'] === 'material' ? $value($received) : null;
+        }
+        return $out;
+    }
+
     /** @param array<string, mixed> $a */
     public static function activity(array $a, string $role, ?array $kpiRow = null): array
     {

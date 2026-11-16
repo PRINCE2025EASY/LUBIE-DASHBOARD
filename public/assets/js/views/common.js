@@ -118,7 +118,7 @@ export function milestoneList(ms) {
 }
 
 const REPORT_LABELS = { status: 'Project status', delayed: 'Delayed activities', milestones: 'Milestones', expenditure: 'Expenditure listing', budget: 'Budget status',
-  'cost-variance': 'Cost variance summary', payments: 'Valuations and payments', alerts: 'Alerts', 'client-summary': 'Client summary', audit: 'Audit trail' };
+  'cost-variance': 'Cost variance summary', payments: 'Valuations and payments', alerts: 'Alerts', resources: 'Labour, materials and equipment', 'client-summary': 'Client summary', audit: 'Audit trail' };
 export function reportsCard(projectId) {
   const body = h('div', {}, h('p', { class: 'small text-body-secondary' }, 'Loading reports…'));
   get('/reports').then(types => {

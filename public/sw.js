@@ -1,11 +1,11 @@
 
-const VERSION = 'lubie-v0.6.1';
+const VERSION = 'lubie-v0.7.0';
 const SCOPE = new URL(self.registration.scope).pathname.replace(/\/$/, '');
 const SHELL = [
   '/offline', '/assets/css/app.css', '/assets/css/login.css', '/assets/js/main.js', '/assets/js/app.js', '/assets/js/theme-init.js', '/assets/js/public.js',
   '/assets/js/lib/api.js', '/assets/js/lib/dom.js', '/assets/js/lib/outbox.js', '/assets/js/lib/drafts.js', '/assets/js/lib/poll.js', '/assets/js/lib/charts.js',
   '/assets/js/views/common.js', '/assets/js/views/site.js', '/assets/js/views/pm.js', '/assets/js/views/qs.js',
-  '/assets/js/views/director.js', '/assets/js/views/client.js', '/assets/js/views/admin.js',
+  '/assets/js/views/director.js', '/assets/js/views/client.js', '/assets/js/views/admin.js', '/assets/js/views/resources.js',
   '/assets/vendor/bootstrap/bootstrap.min.css', '/assets/vendor/bootstrap/bootstrap.bundle.min.js',
   '/assets/vendor/bootstrap-icons/bootstrap-icons.min.css', '/assets/vendor/bootstrap-icons/fonts/bootstrap-icons.woff2',
   '/assets/vendor/chartjs/chart.umd.min.js', '/assets/img/company-logo.png', '/assets/img/favicon.ico', '/assets/img/icon-192.png', '/manifest.webmanifest',

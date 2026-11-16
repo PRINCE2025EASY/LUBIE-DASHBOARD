@@ -1,14 +1,16 @@
 // Director views: cross-project portfolio, project view (read-only), approvals of budget
 
+import { resourcesView } from './resources.js';
 import { get, post, put } from '../lib/api.js';
 import { h, clear, card, table, fmtMoney, fmtPct, fmtNum, fmtDate, fmtDateTime, spinner, badge, icon } from '../lib/dom.js';
 import { projectOverview, pageHeader, tabs, watch, reportsCard, statusLabel } from './common.js';
 import { budgetsCard } from './qs.js';
-import { toast } from '../app.js';
+import { toast, state } from '../app.js';
 
-const dirTabs = (id, active) => tabs(id, active, [['overview', 'Overview'], ['cost', 'Cost and payments']]);
+const dirTabs = (id, active) => tabs(id, active, [['overview', 'Overview'], ['cost', 'Cost and payments'], ['resources', 'Resources']]);
 
 export const routes = {
+  '/project/:id/resources': (app, id) => resourcesView(app, id, { tabs: dirTabs, me: state.me }),
   '/': portfolio,
   '/approvals': approvals,
   '/thresholds': thresholds,

@@ -90,7 +90,7 @@ function setupNetwork() {
     else { st.className = 'badge d-none'; st.textContent = ''; }
   };
   window.addEventListener('online', async () => { banner(''); await outbox.sync().then(r => r.sent && toast(`${r.sent} saved entries sent.`)).catch(() => {}); update(); window.dispatchEvent(new Event('data-changed')); });
-  window.addEventListener('offline', () => { banner('You are offline. You can view saved pages and record progress; it will be sent when the connection returns.'); update(); });
+  window.addEventListener('offline', () => { banner('You are offline. You can view saved pages and record progress, materials, labour and equipment; entries are sent when the connection returns.'); update(); });
   window.addEventListener('outbox-changed', update);
   update();
   if (navigator.onLine) outbox.sync().then(r => r.sent && toast(`${r.sent} saved entries sent.`)).catch(() => {});

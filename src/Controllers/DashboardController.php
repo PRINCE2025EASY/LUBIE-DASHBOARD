@@ -61,7 +61,8 @@ final class DashboardController extends BaseController
     {
         $out = [
             'delay_reasons' => $this->c->get(ProgressRepository::class)->delayReasons(),
-            'units' => ['bag', 't', 'm3', 'm2', 'm', 'pcs', 'kg', 'litre', 'trip', 'hr', 'persons'],
+            'units' => \Lubie\Services\ResourceService::UNITS,
+            'equipment_statuses' => \Lubie\Services\ResourceService::EQUIPMENT_STATUSES,
             'project_statuses' => ['planning', 'active', 'on_hold', 'completed', 'archived'],
         ];
        

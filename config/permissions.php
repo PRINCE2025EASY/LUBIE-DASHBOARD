@@ -38,6 +38,7 @@ return [
 
     'resources.view'       => ['director', 'pm', 'qs', 'site'],
     'resources.record'     => ['pm', 'site'],
+    'resources.cost'       => ['pm'],
     'requests.decide'      => ['pm'],
 
     'dashboard.project'    => ['director', 'pm', 'qs', 'site'],

@@ -11,6 +11,7 @@ use Lubie\Controllers\PageController as Page;
 use Lubie\Controllers\ProgressController as Prog;
 use Lubie\Controllers\ProjectController as Proj;
 use Lubie\Controllers\ReportController as Rep;
+use Lubie\Controllers\ResourceController as Res;
 use Lubie\Controllers\ThresholdController as Thr;
 use Lubie\Http\Router;
 
@@ -95,6 +96,18 @@ return static function (Router $r): void {
     $r->add('POST', "$v/projects/{id}/certificates", [Cost::class, 'createCertificate'], 'perm:certificates.record');
     $r->add('POST', "$v/certificates/{id}/certify", [Cost::class, 'certify'], 'perm:certificates.record');
     $r->add('POST', "$v/certificates/{id}/payments", [Cost::class, 'pay'], 'perm:certificates.record');
+
+    // Labour, materials, equipment, material requests
+    $r->add('GET', "$v/projects/{id}/resources", [Res::class, 'index'], 'perm:resources.view');
+    $r->add('POST', "$v/projects/{id}/resources", [Res::class, 'store'], 'perm:resources.record');
+    $r->add('PATCH', "$v/resources/{id}", [Res::class, 'update'], 'perm:resources.record');
+    $r->add('GET', "$v/resources/{id}/usage", [Res::class, 'history'], 'perm:resources.view');
+    $r->add('POST', "$v/resources/{id}/usage", [Res::class, 'usage'], 'perm:resources.record');
+    $r->add('POST', "$v/resources/{id}/equipment-status", [Res::class, 'equipmentStatus'], 'perm:resources.record');
+    $r->add('POST', "$v/projects/{id}/material-requests", [Res::class, 'createRequest'], 'perm:resources.record');
+    $r->add('POST', "$v/material-requests/{id}/approve", [Res::class, 'approveRequest'], 'perm:requests.decide');
+    $r->add('POST', "$v/material-requests/{id}/cancel", [Res::class, 'cancelRequest'], 'perm:resources.record');
+    $r->add('POST', "$v/material-requests/{id}/deliver", [Res::class, 'deliverRequest'], 'perm:resources.record');
 
     // Dashboards, polling, alerts
     $r->add('GET', "$v/projects/{id}/dashboard", [Dash::class, 'project'], 'perm:dashboard.project');

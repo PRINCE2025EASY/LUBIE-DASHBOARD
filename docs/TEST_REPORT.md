@@ -194,6 +194,20 @@ Open items (not code defects):
 | GitHub Actions on PHP 8.2 + MariaDB 10.4.32 | Dependabot Dompdf 3.1.6 branch: all jobs green. main at 0c2ae89: failed at dependency install because of D-17 (fixed since) |
 | Docker image build | Not run here (no Docker in my workspace). The new CI job builds and smoke-tests it on every push |
 
+## 10c. Resources module (16/11/2026, task T8)
+
+FR-18 labour and materials, FR-19 equipment status, FR-33 material requests and store balance,
+FR-34 reorder alert from real stock data, and offline capture of these entries (FR-38).
+
+| Check | Result |
+|---|---|
+| ResourceTest (10 tests, 96 assertions): field filtering, scope, validation, negative balance confirmation, A10 and A14 raise and clear, rates by PM only, request workflow and separation of duties, delivery adds stock, offline sync idempotent, closed project refused, report by role | Pass |
+| Full suite on MariaDB 10.11 | 116 tests, 1,069 assertions, pass |
+| Full suite on MySQL 8.0 over TLS (`sql_require_primary_key`, app user `REQUIRE SSL`) | 116 tests, pass |
+| Browser smoke, 6 roles, light and dark, 360 px, including the new Resources pages | 0 problems |
+| axe-core on the Resources pages, 4 roles, 360 px and 1366 px | 0 violations |
+| Browser flow: SE attendance, use above balance with confirmation, faulty equipment, request, add item, offline receipt synced on reconnect; PM approve, deliver, set rate; QS and Director read-only with values; Client refused (403) | Pass |
+
 ## 11. Not run
 
 - Tests on your XAMPP (PHP 8.2.12, MariaDB 10.4.32).

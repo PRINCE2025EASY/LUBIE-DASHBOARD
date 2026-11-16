@@ -91,6 +91,24 @@ final class Validator
         return $this;
     }
 
+    /** Quantity with up to two decimals (DECIMAL(12,2)); returned as a string such as "12.50". */
+    public function quantity(string $f, bool $required = true, bool $positive = false): self
+    {
+        if ($this->missing($f)) {
+            $required ? $this->errors[$f] = 'This field is required.' : $this->clean[$f] = null;
+            return $this;
+        }
+        $v = (string) $this->raw($f);
+        if (!preg_match('/^\d{1,10}(\.\d{1,2})?$/', $v)) {
+            $this->errors[$f] = 'Enter a number such as 12 or 12.5 (two decimals at most).';
+        } elseif ($positive && (float) $v <= 0) {
+            $this->errors[$f] = 'Enter a quantity greater than 0.';
+        } else {
+            $this->clean[$f] = number_format((float) $v, 2, '.', '');
+        }
+        return $this;
+    }
+
     /** Money in GH₵ with up to two decimals; returns pesewas. */
     public function money(string $f, bool $required = true, bool $positive = false): self
     {

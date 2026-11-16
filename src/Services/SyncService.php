@@ -7,6 +7,7 @@ namespace Lubie\Services;
 use Lubie\Db\Database;
 use Lubie\Http\HttpException;
 use Lubie\Security\AuthUser;
+use Lubie\Security\Authorizer;
 use Lubie\Support\Clock;
 
 /**
@@ -16,7 +17,7 @@ final class SyncService
 {
     public const MAX_ITEMS = 50;
 
-    public function __construct(private Database $db, private ProgressService $progress, private Clock $clock)
+    public function __construct(private Database $db, private ProgressService $progress, private ResourceService $resources, private Authorizer $authz, private Clock $clock)
     {
     }
 
@@ -52,15 +53,32 @@ final class SyncService
         }
         $type = (string) ($item['type'] ?? '');
         try {
-            if ($type !== 'progress') {
-                throw HttpException::validation(['type' => 'This item type cannot be sent offline.']);
-            }
             $body = is_array($item['body'] ?? null) ? $item['body'] : [];
             $body['client_uuid'] = $uuid;
-            $r = $this->progress->submit($u, (int) ($item['activity_id'] ?? 0), $body);
+            switch ($type) {
+                case 'progress':
+                    $r = $this->progress->submit($u, (int) ($item['activity_id'] ?? 0), $body);
+                    $result = ['client_uuid' => $uuid, 'status' => 201, 'entity_id' => $r['id'], 'record_status' => $r['status'], 'replayed' => $r['replayed']];
+                    $entity = $r['id'];
+                    break;
+                case 'usage': // labour attendance, materials received or used, equipment hours
+                    $this->authz->require($u, 'resources.record');
+                    $r = $this->resources->recordUsage($u, (int) ($item['resource_id'] ?? 0), $body);
+                    $result = ['client_uuid' => $uuid, 'status' => 201, 'entity_id' => $r['id'], 'replayed' => $r['replayed']];
+                    $entity = $r['id'];
+                    break;
+                case 'equipment_status':
+                    $this->authz->require($u, 'resources.record');
+                    unset($body['client_uuid']);
+                    $rid = (int) ($item['resource_id'] ?? 0);
+                    $this->resources->setEquipmentStatus($u, $rid, $body);
+                    $result = ['client_uuid' => $uuid, 'status' => 201, 'entity_id' => $rid, 'replayed' => false];
+                    $entity = $rid;
+                    break;
+                default:
+                    throw HttpException::validation(['type' => 'This item type cannot be sent offline.']);
+            }
             $code = 201;
-            $result = ['client_uuid' => $uuid, 'status' => 201, 'entity_id' => $r['id'], 'record_status' => $r['status'], 'replayed' => $r['replayed']];
-            $entity = $r['id'];
         } catch (HttpException $e) {
             $code = $e->status;
             $result = ['client_uuid' => $uuid, 'status' => $e->status, 'error' => $e->getMessage(), 'fields' => $e->fields ?: null];
@@ -68,7 +86,7 @@ final class SyncService
         }
         if ($code < 500) {
             $this->db->run('INSERT INTO sync_requests (client_uuid, user_id, endpoint, result_code, entity_type, entity_id, received_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                [$uuid, $u->id, $type ?: 'unknown', $code, $entity !== null ? 'progress' : null, $entity, $this->clock->nowSql()]);
+                [$uuid, $u->id, $type ?: 'unknown', $code, $entity !== null ? ($type === 'progress' ? 'progress' : ($type === 'usage' ? 'resource_usage' : 'resource')) : null, $entity, $this->clock->nowSql()]);
         }
         return $result;
     }

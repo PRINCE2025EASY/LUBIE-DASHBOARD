@@ -1,17 +1,19 @@
 // Site Engineer views.
 // submission status, add activity.
+import { resourcesView } from './resources.js';
 import { get, post, formData, showErrors, showOk } from '../lib/api.js';
 import { h, clear, card, table, field, select, scheduleBadge, fmtPct, fmtDate, fmtDateTime, todayIso, spinner, badge, icon } from '../lib/dom.js';
 import * as outbox from '../lib/outbox.js';
 import { bindDraft } from '../lib/drafts.js';
 import { projectList, projectOverview, pageHeader, tabs, lastUpdated, watch } from './common.js';
-import { toast } from '../app.js';
+import { toast, state } from '../app.js';
 
-const siteTabs = (id, active) => tabs(id, active, [['activities', 'My activities'], ['overview', 'Overview'], ['submissions', 'My submissions'], ['new-activity', 'Add activity']]);
+const siteTabs = (id, active) => tabs(id, active, [['activities', 'My activities'], ['resources', 'Materials and labour'], ['overview', 'Overview'], ['submissions', 'My submissions'], ['new-activity', 'Add activity']]);
 const uuid = () => (crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = crypto.getRandomValues(new Uint8Array(1))[0] % 16; return (c === 'x' ? r : (r & 3) | 8).toString(16); }));
 const statusBadge = s => ({ submitted: badge('information', 'Submitted, waiting for PM'), approved: badge('ok', 'Approved'), returned: badge('warning', 'Returned') }[s] || badge('information', s));
 
 export const routes = {
+  '/project/:id/resources': (app, id) => resourcesView(app, id, { tabs: siteTabs, me: state.me }),
   '/': app => projectList(app, { onOpen: p => `#/project/${p.id}/activities` }),
   '/project/:id/activities': activities,
   '/project/:id/overview': (app, id) => projectOverview(app, id, { tabsFor: siteTabs }),
